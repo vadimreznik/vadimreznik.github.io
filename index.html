@@ -5,6 +5,20 @@
   <title>Master System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="index.js"></script>
+  <style>
+  	.row{
+  		width: 100%;
+  		overflow: hidden;
+  		margin-bottom: 5px;
+  	}
+  	.row .cell{
+  		display: inline-block;
+  		margin-right: 1%;
+  	}
+  	.row .cell input{
+  		width: 100%;
+  	}
+  </style>
 </head>
 <body>
 	<div id="wrapper">
@@ -12,14 +26,17 @@
 			<label>Pins:</label>
 			<input type="text" id="pins" >
 		</div>
-		<div class="row">
-			<label>Steps:</label>
-			<input type="text" id="steps" >
-		</div>
-		<div class="row">
-			<label>Levels:</label>
-			<input type="text" id="levels" >
-		</div>
+		<div id="heights" class="row"></div>
+    <div id="controls" class="row" style="display: none;">
+      <div class="cell">
+        <label>Remove dublicate pairs</label>
+        <input type="checkbox" id="pairs">
+      </div>
+      <div class="cell">
+        <label>Remove alternating pairs</label>
+        <input type="checkbox" id="alternate">
+      </div>
+    </div>
 		<div class="row">
 			<button id="generate">Generate</button>
 		</div>
