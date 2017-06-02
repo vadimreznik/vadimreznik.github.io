@@ -13,7 +13,7 @@ function removeDublicatePairs(){
 		if(this.checked){
 			woDublicates = isCheckedAlternate ? woAlternate.slice() : allValues.slice();
 
-			woDublicates = woDublicates.filter(function(item){ return isKeyHasValidPairs(item.split('')); });
+			woDublicates = woDublicates.filter(function(item){ return isKeyHasValidPairs(item.split(useJoinWith ? ',' : '')); });
 
 			postResult('', true);
 			postResult('Values wo dublicates: ' + woDublicates.length);
@@ -27,7 +27,7 @@ function removeDublicatePairs(){
 			postResult('', true);
 			postResult(isCheckedAlternate ? 'Values wo alternate: ' : 'All possible values: ' + arr.length);
 
-			arr .forEach(function(item){
+			arr.forEach(function(item){
 				postResult(item);
 			});
 		}
@@ -40,7 +40,7 @@ function removeAlternatePairs(){
 		if(this.checked){
 			woAlternate = isCheckedDublicate ? woDublicates.slice() : allValues.slice();
 
-			woAlternate = woAlternate.filter(function(item){ return isKeyHasAlternatePairs(item.split('')); });
+			woAlternate = woAlternate.filter(function(item){ return isKeyHasAlternatePairs(item.split(useJoinWith ? ',' : '')); });
 
 			postResult('', true);
 			postResult('Values wo alternate: ' + woAlternate.length);
@@ -80,17 +80,25 @@ function buildPinsHeight(){
 	
 	heights.innerHTML = '<div><strong>Enter the height of the each pin (in mm.):</strong></div>' + Template('<div class="cell"><label>Pin |item|</label><input type="text" id="id|item|"></div>')(model);
 	heights.removeEventListener('keyup', gatheringHeights);
+	heights.removeEventListener('blur', addToFixed);
 	heights.addEventListener('keyup', gatheringHeights);
+	heights.addEventListener('blur', addToFixed, true);
 }
 
 function validateNumber(val){
 	return !isNaN(Number(val));
 }
 
+function addToFixed(e){
+	var val = Number(e.target.value);
+	e.target.value = val.toFixed(1);
+}
+
 var storage = {};
 var allValues, woDublicates, woAlternate;
 var isCheckedDublicate = false;
 var isCheckedAlternate = false;
+var useJoinWith = false;
 
 function gatheringHeights(e){
 	if(validateNumber(e.target.value)){
@@ -112,9 +120,10 @@ function generateCombinations(){
 			}
 			return storage[key] !== undefined;
 		});
+
 		if(hasValues){
+			useJoinWith = false;
 			allValues = combinations({str:pinsArray.join('')});
-			
 			postResult('All possible values: ' + allValues.length);
 			allValues.forEach(function(item){
 				postResult(item);
@@ -127,7 +136,31 @@ function generateCombinations(){
 			postResult('Some pin is absent!', true);
 		}
 	} else {
-		postResult('Something went wrong!', true);
+		var somePinsArray = [];
+		var pinsArray = [];
+		var hasAnyValues = pins.some(function(key){
+			return storage[key] !== undefined;
+		});
+		if(hasAnyValues){
+			useJoinWith = true;
+			pins.forEach(function(item){
+				if(storage[item] !== undefined){
+					somePinsArray.push(storage[item]);
+				}
+			});
+			for(var i = 0; i < pinsCount; i++){
+				pinsArray.push(somePinsArray.join(','));
+			}
+			allValues = combinations({arr:pinsArray}, ',');
+			postResult('All possible values: ' + allValues.length);
+			allValues.forEach(function(item){
+				postResult(item);
+			});
+			document.getElementById('controls').style.display = 'block';
+			document.getElementById('generate').style.display = 'none';
+		} else {
+			postResult('Something went wrong!', true);
+		}
 	}
 }
 
@@ -332,9 +365,9 @@ or
   Displays:
   ACE, ACF, ADE, ADF, BCE, BCF, BDE, BDF
 */
-function combinations(args) {
+function combinations(args, joinWith) {
   var n, inputArr = [], copyArr = [], results = [],
-  subfunc = function(copies, prefix) {
+  subfunc = function(copies, prefix, joinWith) {
     var i, myCopy = [], exprLen, currentChar = "", result = "";
     // if no prefix, set default to empty string
     if (typeof prefix === "undefined") {
@@ -350,20 +383,30 @@ function combinations(args) {
     exprLen = myCopy.length;
     for (i = 0; i < exprLen; i += 1) {
       currentChar = myCopy[i];
-      result = prefix + currentChar;
+      result = prefix + (joinWith || '') + currentChar;
       // if resulting string length is the number of characters of original string,
       // we have a result
-      if (result.length === n) {
-        results.push(result);
+      if(!!joinWith){
+      	  if(result[0] === joinWith){
+      	  	result = result.substr(1);
+      	  }
+	      if (result.split(joinWith).length === n) {
+	        results.push(result);
+	      }
+      } else {
+	      if (result.length === n) {
+	        results.push(result);
+	      }
       }
       // if there are copies left,
       //   pass remaining copies (by value) and result (as new prefix)
       //   into subfunc (recursively)
       if (typeof copies[0] !== "undefined") {
-        subfunc(copies.slice(0), result);
+        subfunc(copies.slice(0), result, joinWith);
       }
     }
   };
+  
   // for each character in original string
   //   create array (inputArr) which contains original string (converted to array of char)
   if (typeof args.str === "string") {
@@ -374,10 +417,10 @@ function combinations(args) {
   }
   if (isArray(args.arr)) {
     for (n = 0; n < args.arr.length; n += 1) {
-      copyArr.push(args.arr[n].split(""));
+      copyArr.push(args.arr[n].split(","));
     }
   }
   // pass copyArr into sub-function for recursion
-  subfunc(copyArr);
+  subfunc(copyArr, '', joinWith);
   return results;
 };
