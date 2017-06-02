@@ -3,44 +3,144 @@
 <head>
   <meta charset="utf-8">
   <title>Master System</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="index.js"></script>
-  <style>
-  	.row{
-  		width: 100%;
-  		overflow: hidden;
-  		margin-bottom: 5px;
-  	}
-  	.row .cell{
-  		display: inline-block;
-  		margin-right: 1%;
-  	}
-  	.row .cell input{
-  		width: 100%;
-  	}
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Didact+Gothic" rel="stylesheet">
+  <link rel="stylesheet" href="styles/material.min.css">
+  <link rel="stylesheet" href="styles/material.indigo-blue.min.css">
+  <link rel="stylesheet" href="styles/style.css">
+  <script src="scripts/material.min.js"></script>
+  <script src="scripts/index.js"></script>
 </head>
 <body>
 	<div id="wrapper">
-		<div class="row">
-			<label>Pins:</label>
-			<input type="text" id="pins" >
-		</div>
-		<div id="heights" class="row"></div>
-    <div id="controls" class="row" style="display: none;">
-      <div class="cell">
-        <label>Remove dublicate pairs</label>
-        <input type="checkbox" id="pairs">
-      </div>
-      <div class="cell">
-        <label>Remove alternating pairs</label>
-        <input type="checkbox" id="alternate">
+    <div id="content">
+  <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+    <div class="mdl-tabs__panel is-active" id="tab1">
+      <div class="mdl-card mdl-shadow--4dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Параметры системы</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+          Введите количество обычных пинов в цилиндре, число, которое больше нуля и меньше 12.
+        </div>
+        <div class="mdl-card__actions">
+            <div class="mdl-textfield mdl-js-textfield">
+              <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="pins">
+              <label class="mdl-textfield__label" for="pins">Количество пинов</label>
+              <span class="mdl-textfield__error">Введите число!</span>
+            </div>
+        </div>
+        <div class="mdl-card__actions">
+          <a href="#tab2" class="mdl-tabs__tab">Далее</a>
+        </div>
       </div>
     </div>
-		<div class="row">
-			<button id="generate">Generate</button>
-		</div>
-		<div id="result"></div>
+    <div class="mdl-tabs__panel" id="tab2">
+      <div class="mdl-card mdl-shadow--4dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Параметры системы</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+          Введите высоты пинов в поле ниже, через запятую. Числа должны быть больше нуля и меньше 10.
+        </div>
+        <div class="mdl-card__actions">
+            <div class="mdl-textfield mdl-js-textfield">
+              <input class="mdl-textfield__input" type="text" pattern="\b\d[\d,.]*\b" id="heights">
+              <label class="mdl-textfield__label" for="heights">Высоты пинов</label>
+              <span class="mdl-textfield__error">Вводите только числа!</span>
+            </div>
+        </div>
+        <div class="mdl-card__actions">
+          <a href="#tab3" class="mdl-tabs__tab">Далее</a>
+        </div>
+      </div>
+    </div>
+    <div class="mdl-tabs__panel" id="tab3">
+      <div class="mdl-card mdl-shadow--4dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Настройка системы</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+          Отметьте ниже необходимые правила для точной настройки системы.
+        </div>
+        <div class="mdl-card__actions">
+          <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="haveDublicates">
+            <input type="checkbox" id="haveDublicates" class="mdl-switch__input" checked>
+            <span class="mdl-switch__label">Разрешить одинаковые пары пинов</span>
+          </label>
+        </div>
+        <div class="mdl-card__actions">
+          <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="haveAlternates">
+            <input type="checkbox" id="haveAlternates" class="mdl-switch__input" checked>
+            <span class="mdl-switch__label">Разрешить чередование</span>
+          </label>
+        </div>
+        <div class="mdl-card__actions">
+          <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="showStatistic">
+            <input type="checkbox" id="showStatistic" class="mdl-switch__input">
+            <span class="mdl-switch__label">Показать статистику</span>
+          </label>
+        </div>
+        <div class="mdl-card__actions">
+          <a href="#tab4" class="mdl-tabs__tab" id="getData">Готово</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mdl-tabs__panel" id="tab4">
+      <div class="mdl-card mdl-shadow--4dp">
+        <div id="progress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+        <div id="hidden-content">
+          <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">Мастер система</h2>
+          </div>
+          <div class="mdl-card__supporting-text">
+            Ниже представлена сводная таблица со количеством комбинаций. Нажмите на одну из строк для подробного результата.
+          </div>
+          <div class="mdl-card__supporting-text">
+            <table class="mdl-data-table mdl-js-data-table" id="statistic" style="width: 100%">
+              <thead>
+                <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Комбинации</th>
+                  <th>Количество</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="all">
+                  <td class="mdl-data-table__cell--non-numeric">Без ограничений</td>
+                  <td>49021</td>
+                </tr>
+                <tr class="woDublicates">
+                  <td class="mdl-data-table__cell--non-numeric">Без одинаковых пар</td>
+                  <td>10258</td>
+                </tr>
+                <tr class="woAlternate">
+                  <td class="mdl-data-table__cell--non-numeric">Без чередования</td>
+                  <td>12359</td>
+                </tr>
+              </tbody>
+            </table>
+            <a href="#tab5" class="mdl-tabs__tab hidden">Результат</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mdl-tabs__panel" id="tab5">
+      <div class="mdl-card mdl-shadow--4dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Результат</h2>
+        </div>
+        <div class="mdl-card__actions">
+            <div class="mdl-textfield mdl-js-textfield">
+              <textarea class="mdl-textfield__input" type="text" rows= "3" id="results" ></textarea>
+              <label class="mdl-textfield__label" for="results">Text lines...</label>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 	</div>
 </body>
 </html>

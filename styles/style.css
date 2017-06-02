@@ -1,0 +1,30 @@
+html, body {
+	font-family: 'Didact Gothic', sans-serif;
+	background-color: #fafafa;
+}
+
+#wrapper{
+	width: 100%;
+}
+
+#content{
+	width: 80%;
+	margin: 0 auto;
+	padding-top: 100px;
+}
+
+.mdl-card{
+	margin: 0 auto;
+}
+.hidden,
+#hidden-content{
+	display: none;
+}
+
+#statistic tr{
+	cursor: pointer;
+}
+
+#results{
+	resize: none;
+}
