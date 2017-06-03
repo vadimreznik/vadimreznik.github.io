@@ -27,9 +27,12 @@ function initialize(){
 		haveDublicates: document.getElementById('haveDublicates'),
 		haveAlternates: document.getElementById('haveAlternates'),
 		showStatistic: document.getElementById('showStatistic'),
+		statistic: document.getElementById('statistic'),
 		getData: document.getElementById('getData'),
 		hiddenContent: document.getElementById('hidden-content'),
-		progress: document.getElementById('progress')
+		progress: document.getElementById('progress'),
+		showResult: document.getElementById('showResult'),
+		results: document.getElementById('results')
 	};
 
 	addEvents();
@@ -73,6 +76,7 @@ function showStatistic(){
 }
 
 function getData(){
+	var key = '';
 	for(var i = 0; i < settings.pins; i++){
 		data.pins.push(settings.heights);
 	}
@@ -81,6 +85,28 @@ function getData(){
 	data.woDublicates = data.all.filter(function(item){ return isKeyHasValidPairs(item.split(',')); });
 	data.woAlternates = data.all.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
 	data.strict = data.woDublicates.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
+
+	if(params.showStatistic){
+		nodes.statistic.querySelectorAll('.all > td')[1].innerHTML = data.all.length;
+		nodes.statistic.querySelectorAll('.woDublicates > td')[1].innerHTML = data.woDublicates.length;
+		nodes.statistic.querySelectorAll('.woAlternates > td')[1].innerHTML = data.woAlternates.length;
+		nodes.progress.style.display = 'none';
+		nodes.hiddenContent.style.display = 'block';
+	} else {
+		if(!params.haveDublicates && params.haveAlternates){
+			key = 'woDublicates';
+		} else if(params.haveDublicates && !params.haveAlternates){
+			key = 'woAlternates';
+		} else if(!params.haveDublicates && !params.haveAlternates){
+			key = 'strict';
+		} else {
+			key = 'all';
+		}
+		nodes.results.value = data[key].join('\n');
+		setTimeout(function(){
+			nodes.showResult.click();
+		}, 500);
+	}
 }
 
 
@@ -109,6 +135,10 @@ function isPinEquals(arr, i){
 
 function isAlternatePinEquals(arr, i){
 	return arr[i - 1] === undefined || arr[i + 1] === undefined ? false : arr[i - 1] === arr[i + 1];
+}
+
+function isArray(arr){
+	return arr instanceof Array;
 }
 
 function combinations(args, joinWith) {
