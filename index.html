@@ -95,7 +95,7 @@
             <h2 class="mdl-card__title-text">Мастер система</h2>
           </div>
           <div class="mdl-card__supporting-text">
-            Ниже представлена сводная таблица со количеством комбинаций. Нажмите на одну из строк для подробного результата.
+            Ниже представлена сводная таблица со количеством комбинаций. Нажмите "Далее" для подробного результата.
           </div>
           <div class="mdl-card__supporting-text">
             <table class="mdl-data-table mdl-js-data-table" id="statistic" style="width: 100%">
@@ -121,6 +121,9 @@
               </tbody>
             </table>
           </div>
+          <div class="mdl-card__actions">
+            <a href="#tab5" class="mdl-tabs__tab">Далее</a>
+          </div>
         </div>
         <a href="#tab5" class="mdl-tabs__tab hidden" id="showResult">Результат</a>
       </div>
@@ -131,10 +134,40 @@
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">Результат</h2>
         </div>
+        <div class="mdl-card__supporting-text">
+          Количество вариантов - <span id="vars"></span>.
+        </div>
         <div class="mdl-card__actions">
             <div class="mdl-textfield mdl-js-textfield">
               <textarea class="mdl-textfield__input" type="text" rows= "7" id="results" ></textarea>
             </div>
+        </div>
+        <div class="mdl-card__actions">
+            <a href="#tab6" class="mdl-tabs__tab" id="verify">Тестирование системы</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mdl-tabs__panel" id="tab6">
+      <div class="mdl-card mdl-shadow--4dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Тестирование</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+            <table class="mdl-data-table mdl-js-data-table" id="system" style="width: 100%">
+              <thead>
+                <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Комбинации</th>
+                  <th>Количество</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+        </div>
+        <div class="mdl-card__actions">
+        </div>
+        <div class="mdl-card__actions">
         </div>
       </div>
     </div>

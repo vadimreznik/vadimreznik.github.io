@@ -4,7 +4,8 @@ var storage = {};
 var nodes = {};
 var settings = {
 	pins: '',
-	heights: ''
+	heights: '',
+	key: ''
 };
 var params = {
 	haveDublicates: false,
@@ -17,7 +18,8 @@ var data = {
 	all: [],
 	woDublicates: [],
 	woAlternates: [],
-	strict: []
+	strict: [],
+	verificationResult: []
 };
 
 function initialize(){
@@ -32,7 +34,10 @@ function initialize(){
 		hiddenContent: document.getElementById('hidden-content'),
 		progress: document.getElementById('progress'),
 		showResult: document.getElementById('showResult'),
-		results: document.getElementById('results')
+		results: document.getElementById('results'),
+		vars: document.getElementById('vars'),
+		verify: document.getElementById('verify'),
+		system: document.getElementById('system')
 	};
 
 	addEvents();
@@ -46,6 +51,7 @@ function addEvents(){
 	nodes.haveAlternates.addEventListener('change', haveAlternates, true);
 	nodes.showStatistic.addEventListener('change', showStatistic, true);
 	nodes.getData.addEventListener('click', getData, true);
+	nodes.verify.addEventListener('click', verifySystem, true);
 }
 
 function extendParams(){
@@ -76,7 +82,6 @@ function showStatistic(){
 }
 
 function getData(){
-	var key = '';
 	for(var i = 0; i < settings.pins; i++){
 		data.pins.push(settings.heights);
 	}
@@ -86,6 +91,19 @@ function getData(){
 	data.woAlternates = data.all.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
 	data.strict = data.woDublicates.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
 
+	if(!params.haveDublicates && params.haveAlternates){
+		settings.key = 'woDublicates';
+	} else if(params.haveDublicates && !params.haveAlternates){
+		settings.key = 'woAlternates';
+	} else if(!params.haveDublicates && !params.haveAlternates){
+		settings.key = 'strict';
+	} else {
+		settings.key = 'all';
+	}
+
+	nodes.vars.innerHTML = data[settings.key].length; 
+	nodes.results.value = data[settings.key].join('\n');
+
 	if(params.showStatistic){
 		nodes.statistic.querySelectorAll('.all > td')[1].innerHTML = data.all.length;
 		nodes.statistic.querySelectorAll('.woDublicates > td')[1].innerHTML = data.woDublicates.length;
@@ -93,23 +111,80 @@ function getData(){
 		nodes.progress.style.display = 'none';
 		nodes.hiddenContent.style.display = 'block';
 	} else {
-		if(!params.haveDublicates && params.haveAlternates){
-			key = 'woDublicates';
-		} else if(params.haveDublicates && !params.haveAlternates){
-			key = 'woAlternates';
-		} else if(!params.haveDublicates && !params.haveAlternates){
-			key = 'strict';
-		} else {
-			key = 'all';
-		}
-		nodes.results.value = data[key].join('\n');
 		setTimeout(function(){
 			nodes.showResult.click();
 		}, 500);
 	}
 }
 
+function countDepthLevel(o, key, count){
+	if(!!o && o.hasOwnProperty(key)){
+		for(var i = 0; i < o[key].length; i++){
+			return countDepthLevel(o[key][i], key, isNaN(Number(count)) ? 1 : ++count);
+		}
+	} else {
+		return count;
+	}
+}
 
+function verifySystem(){
+	data.verificationResult = data[settings.key].map(findLargestArray);
+	data.verificationResult.forEach(checkLevel);
+
+	data.verificationResult = data.verificationResult.filter(function(item){ return !!item; });
+	data.verificationResult.forEach(function(item, i){
+		if(!!item){
+			nodes.system.tBodies[0].insertRow();
+			nodes.system.tBodies[0].rows[i].insertCell();
+			nodes.system.tBodies[0].rows[i].insertCell();
+			nodes.system.tBodies[0].rows[i].cells[0].className = 'mdl-data-table__cell--non-numeric';
+			nodes.system.tBodies[0].rows[i].cells[0].innerHTML = item.base;
+			nodes.system.tBodies[0].rows[i].cells[1].innerHTML = countDepthLevel(item, 'next') || 0;
+		}
+	});
+}
+
+function deepVerification(o){
+	o.next = o.largest.map(findLargestArray);
+	o.next.forEach(checkLevel);
+}
+
+function checkLevel(item){
+	if(!!item && item.largest.length > 1){
+		deepVerification(item);
+	}
+}
+
+function findLargestArray(arr, i, base){
+	var result = [];
+	for(var n = 0; n < base.length; n++){
+		var a1 = typeof arr === 'string' ? arr.split(',') : arr;
+		var a2 = typeof base[n] === 'string' ? base[n].split(',') : base[n];
+		if(i !== n){
+			if(compareArrays(a1, a2)){
+				result.push(a2)
+			}
+		}
+	}
+	if(result.length > 0){
+		return {base: arr, largest: result};
+	}
+}
+
+function compareArrays(a1, a2){
+	var itIsLess = true;
+	if(a1.length === a2.length){
+		for(var i = 0; i < a1.length; i++){
+			itIsLess = Number(a1[i]) <= Number(a2[i]);
+			if(!itIsLess){
+				return false;
+			}
+		}
+		return true;
+	} else {
+		return false;
+	}
+}
 
 function isKeyHasValidPairs(pins){
 	for(var i = 0; i < pins.length; i++){
