@@ -28,3 +28,44 @@ html, body {
 #results{
 	resize: none;
 }
+
+#system td{
+	cursor: pointer;
+}
+
+#system .active td{
+	background-color: #eee;
+}
+
+.scroll{
+	width: 100%;
+	overflow: auto;
+}
+
+.scroll-300{
+	height: 300px;
+}
+
+.diagram{
+	width: 976px;
+}
+
+.node {
+	cursor: pointer;
+}
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1px;
+}
+
+.node text {
+  font: 10px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
