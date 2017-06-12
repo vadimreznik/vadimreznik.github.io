@@ -387,7 +387,7 @@ function verifySystem(){
 
 	var it = new Iterator(data.verificationResult[0].children);
 	while(it.hasNext()){
-		it.current().a = 1;
+		it.current().ch = 1;
 		console.log(it.next());
 	}
 	console.log(data.verificationResult[0].children);
