@@ -295,6 +295,33 @@ function joinGroupedArray(arr){
 	return [].concat.apply([], arr);
 }
 
+function Iterator(data){
+	this.index = 0;
+	this.data = data;
+	this.length = this.data.length;
+}
+
+Iterator.prototype = {
+	next: function(){
+		var element;
+		if(!this.hasNext()){
+			return null;
+		}
+		element = this.data[this.index];
+		this.index++;
+		return element;
+	},
+	hasNext: function(){
+		return this.index < this.length;
+	},
+	rewind: function(){
+		this.index = 0;
+	},
+	current: function(){
+		return this.data[this.index];
+	}
+};
+
 function verifySystem(){
 	var base = data[settings.key];
 	data.verificationResult = base.map(findLargestArray);
@@ -304,56 +331,80 @@ function verifySystem(){
 	function doAct(obj){
 		var item = obj;
 		var largeArray = obj.largest;
-		var group = createGroupedArray(largeArray, 50);
-		var results = [];
+		if(largeArray){
+			var group = createGroupedArray(largeArray, 50);
+			var results = [];
 
-		function doMap(chunk){
-			return chunk.map(function(arr, ind){
-				return findLargestArray(arr, ind, global.env.base);
-			});
-		}
+			function doMap(chunk){
+				return chunk.map(function(arr, ind){
+					return findLargestArray(arr, ind, global.env.base);
+				});
+			}
 
-		for(var i = 0; i < group.length; i++){
-			var chunk = group[i];
-			var result = [];
-			// var p = new Parallel(chunk, {env: { base: base }}).require(findLargestArray, compareArrays).spawn(doMap).then(function(a){
-			// 	var o = a;
+			for(var i = 0; i < group.length; i++){
+				var chunk = group[i];
+				var result = [];
+				// var p = new Parallel(chunk, {env: { base: base }}).require(findLargestArray, compareArrays).spawn(doMap).then(function(a){
+				// 	var o = a;
+					
+				// 	o = o.filter(function(item){ return !!item; });
+				// 	for(var n = 0; n < o.length; n++){
+				// 		if(o[n].largest){
+				// 			o[n].children = (function(x){
+				// 				return doAct(o[x]);
+				// 			})(n);
+				// 		}
+				// 		result.push(o);
+				// 	}
+				// 	results.push(result)
+				// 	debugger;
+				// });
+				var o = chunk.map(function(arr, ind){
+					return findLargestArray(arr, ind, base);
+				});
 				
-			// 	o = o.filter(function(item){ return !!item; });
-			// 	for(var n = 0; n < o.length; n++){
-			// 		if(o[n].largest){
-			// 			o[n].children = (function(x){
-			// 				return doAct(o[x]);
-			// 			})(n);
-			// 		}
-			// 		result.push(o);
-			// 	}
-			// 	results.push(result)
-			// 	debugger;
-			// });
-			var o = chunk.map(function(arr, ind){
-				return findLargestArray(arr, ind, base);
-			});
-			
-			o = o.filter(function(item){ return !!item; });
-			// for(var n = 0; n < o.length; n++){
-			// 	if(o[n].largest){
-			// 		o[n].children = (function(x){
-			// 			return doAct(o[x]);
-			// 		})(n);
-			// 	}
-			// 	result.push(o);
-			// }
-			results.push(o)
-		}
+				o = o.filter(function(item){ return !!item; });
+				// for(var n = 0; n < o.length; n++){
+				// 	if(o[n].largest){
+				// 		o[n].children = (function(x){
+				// 			return doAct(o[x]);
+				// 		})(n);
+				// 	}
+				// 	result.push(o);
+				// }
+				results.push(o)
+			}
 
-		return joinGroupedArray(results);
+			return joinGroupedArray(results);
+		} else {
+			return item;
+		}
 	}
 
 
 	console.log(data.verificationResult);
 	data.verificationResult[0].children = doAct(data.verificationResult[0]);
-	// for(var r = 0; r < ){}
+
+	var it = new Iterator(data.verificationResult[0].children);
+	while(it.hasNext()){
+		it.current().a = 1;
+		console.log(it.next());
+	}
+	console.log(data.verificationResult[0].children);
+	debugger;
+	// goDeep(data.verificationResult[0].children);
+
+	// for(var r = 0; r < data.verificationResult[0].children.length; r++){
+	// 	data.verificationResult[0].children[r].children = doAct(data.verificationResult[0].children[r]);
+	// }
+
+	function goDeep(arr){
+		for(var r = 0; r < arr.length; r++){
+			arr[r].children = doAct(arr[r]);
+		}
+	}
+
+	debugger;
 	console.log(data.verificationResult);
 
 	return;
