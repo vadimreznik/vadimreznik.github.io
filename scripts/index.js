@@ -88,6 +88,7 @@ function showStatistic(){
 function buildTree(){
 	nodes.graph.innerHTML = '';
 	var treeData = data.verificationResult;
+
 	var margin = {top: 20, right: 120, bottom: 20, left: 120},
 		width = 960 - margin.right - margin.left,
 		height = 500 - margin.top - margin.bottom;
@@ -283,36 +284,102 @@ function normalizeTree(arr, parent){
 	}
 }
 
-function verifySystem(){
-	data.verificationResult = data[settings.key].map(findLargestArray);
-	data.verificationResult.forEach(checkLevel);
+function createGroupedArray(arr, chunkSize) {
+    var groups = [], i;
+    for (i = 0; i < arr.length; i += chunkSize) {
+        groups.push(arr.slice(i, i + chunkSize));
+    }
+    return groups;
+}
 
-	data.verificationResult = data.verificationResult.filter(function(item){ return !!item; });
-	normalizeTree(data.verificationResult);
+function joinGroupedArray(arr){
+	return [].concat.apply([], arr);
+}
 
-	// console.log(data.verificationResult);
+function doIt(largeArray){
+	var group = createGroupedArray(largeArray, 50);
+	var results = [];
 
-	data.verificationResult.forEach(function(item, i){
-		if(!!item){
-			nodes.system.tBodies[0].insertRow();
-			nodes.system.tBodies[0].rows[i].insertCell();
-			nodes.system.tBodies[0].rows[i].insertCell();
-			nodes.system.tBodies[0].rows[i].cells[0].className = 'mdl-data-table__cell--non-numeric';
-			nodes.system.tBodies[0].rows[i].cells[0].innerHTML = item.base;
-			nodes.system.tBodies[0].rows[i].cells[1].innerHTML = countDepthLevel(item, 'children') || 0;
+	for(var i = 0, l = group.length; i < l; i++){
+		for(var y = 0, s = group[i].length; y < s; y++){
+			results.push(findLargestArray(group[i][y], y, largeArray));
 		}
-	});
+	}
 
-	nodes.system.addEventListener('click', function(e){
-		if(e.target.parentNode.tagName.toLowerCase() === 'tr'){
-			var trs = Array.prototype.slice.call(nodes.system.tBodies[0].rows);
-			data.treeDataIndex = trs.indexOf(e.target.parentNode);
-			for(var i = 0; i < nodes.system.tBodies[0].rows.length; i++){
-				nodes.system.tBodies[0].rows[i].className = '';
+	return joinGroupedArray(results);
+}
+
+function levelDown(arr, base, callback){
+	var results = [];
+	var i = 0, l = arr.length, p;
+
+	foLoop();
+
+	function foLoop(){
+		if(isDone()){
+			callback(results);
+		}
+
+		new Parallel(arr[i].largest, {env: {base: base}}).require(findLargestArray, compareArrays).spawn(function(data){
+			var res = [];
+			for (var i = 0, len = data.length; i < len; i++) {
+			 	res.push(findLargestArray(data[i], i, global.env.base));
 			}
-			e.target.parentNode.className = 'active';
+			return res;
+		}).then(function(data){
+			results.push(data);
+			i++;
+			foLoop();
+		});
+	}
+
+	function isDone(){
+		return i === l - 1; 
+	}
+}
+
+function verifySystem(){
+	var base = data[settings.key];
+
+	var p = new Parallel(base, {env: {base: base}}).require(findLargestArray, compareArrays).spawn(function(data){
+		var res = [], o;
+		for (var i = 0, len = data.length; i < len; i++) {
+		 	res.push(findLargestArray(data[i], i, global.env.base));
 		}
-	}, true);
+		return res;
+	}).then(function(arr){
+		data.verificationResult = arr;
+		// levelDown(data, base, function(results){
+		// 	console.log(results);
+		// });
+		data.verificationResult.forEach(checkLevel);
+
+		data.verificationResult = data.verificationResult.filter(function(item){ return !!item; });
+		normalizeTree(data.verificationResult);
+
+		data.verificationResult.forEach(function(item, i){
+			if(!!item){
+				nodes.system.tBodies[0].insertRow();
+				nodes.system.tBodies[0].rows[i].insertCell();
+				nodes.system.tBodies[0].rows[i].insertCell();
+				nodes.system.tBodies[0].rows[i].cells[0].className = 'mdl-data-table__cell--non-numeric';
+				nodes.system.tBodies[0].rows[i].cells[0].innerHTML = item.base;
+				nodes.system.tBodies[0].rows[i].cells[1].innerHTML = countDepthLevel(item, 'children') || 0;
+			}
+		});
+
+		nodes.system.addEventListener('click', function(e){
+			if(e.target.parentNode.tagName.toLowerCase() === 'tr'){
+				var trs = Array.prototype.slice.call(nodes.system.tBodies[0].rows);
+				data.treeDataIndex = trs.indexOf(e.target.parentNode);
+				for(var i = 0; i < nodes.system.tBodies[0].rows.length; i++){
+					nodes.system.tBodies[0].rows[i].className = '';
+				}
+				e.target.parentNode.className = 'active';
+			}
+		}, true);
+
+	});
 }
 
 function deepVerification(o){
@@ -329,9 +396,10 @@ function checkLevel(item){
 
 function findLargestArray(arr, i, base){
 	var result = [];
-	for(var n = 0; n < base.length; n++){
-		var a1 = typeof arr === 'string' ? arr.split(',') : arr;
-		var a2 = typeof base[n] === 'string' ? base[n].split(',') : base[n];
+	var isStr = typeof arr === 'string';
+	var l = base.length, n = 0, a1 = isStr ? arr.split(',') : arr, a2;
+	for(n = 0; n < l; n++){
+		a2 = typeof base[n] === 'string' ? base[n].split(',') : base[n];
 		if(i !== n){
 			if(compareArrays(a1, a2)){
 				result.push(a2)
@@ -339,16 +407,17 @@ function findLargestArray(arr, i, base){
 		}
 	}
 	if(result.length > 0){
-		return {base: arr, largest: result, name: typeof arr === 'string' ? arr : arr.join()};
+		return {base: arr, largest: result, name: isStr ? arr : arr.join()};
 	}
 }
 
 function compareArrays(a1, a2){
-	var itIsLess = true;
-	if(a1.length === a2.length){
-		for(var i = 0; i < a1.length; i++){
-			itIsLess = Number(a1[i]) <= Number(a2[i]);
-			if(!itIsLess){
+	var a1l = a1.length,
+		a2l = a2.length;
+
+	if(a1l === a2l){
+		for(var i = 0; i < a1l; i++){
+			if(Number(a1[i]) > Number(a2[i])){
 				return false;
 			}
 		}
