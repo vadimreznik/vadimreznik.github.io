@@ -54,7 +54,7 @@ function addEvents(){
 	nodes.haveAlternates.addEventListener('change', haveAlternates, true);
 	nodes.showStatistic.addEventListener('change', showStatistic, true);
 	nodes.getData.addEventListener('click', getData, true);
-	nodes.verify.addEventListener('click', verifySystem, true);
+	nodes.verify.addEventListener('click', verification, true);
 	nodes.diagram.addEventListener('click', buildTree, true);
 }
 
@@ -338,6 +338,146 @@ function levelDown(arr, base, callback){
 	}
 }
 
+function verification(){
+	var arr = data[settings.key];
+	var obj = {};
+
+	for(var i = 0, l = arr.length; i < l; i++){
+		obj[arr[i]] = [];
+	}
+
+	var target = arr.map(function(it){ return it = it.split(',').map(function(ti){ return Number(ti); }); });
+	var min = 1;
+	var currentIndex = 0;
+	var keys = Object.keys(obj);
+	var targetSize = target.length;
+	var str = '';
+
+	for(var key in obj){
+		var base = key.split(',').map(function(it){ return Number(it); });
+		currentIndex = keys.indexOf(key);
+		min = 1;
+		mapOne(target, key);
+	}
+
+	for(var key in obj){
+		obj[key].s = obj[key].join();
+	}
+
+	for(var i = 1, l = keys.length; i < l; i++){
+		str = keys[i] + ',';
+		if(str + obj[keys[i]].s === obj[keys[i-1]].s){
+			obj[keys[i]].r = true;
+		}
+	}
+
+	clearObject();
+	
+	for(var key in obj){
+		var s = obj[key].s;
+
+		for(var i = 1, l = keys.length; i < l; i++){
+			str = keys[i] + ',';
+			if(str + obj[keys[i]].s === s){
+				obj[keys[i]].r = true;
+			}
+		}
+	}
+
+	clearObject();
+
+	for(var key in obj){
+		nodes.system.tBodies[0].insertRow();
+		var row = nodes.system.tBodies[0].rows[nodes.system.tBodies[0].rows.length - 1];
+		row.insertCell();
+		row.insertCell();
+		row.cells[0].className = 'mdl-data-table__cell--non-numeric';
+		row.cells[0].innerHTML = key;
+		row.cells[1].innerHTML = obj[key].length;
+	}
+
+	nodes.diagram.style.display = 'none';
+
+	function clearObject(){
+		for(var key in obj){
+			if(!!obj[key].r){
+				delete obj[key];
+			}
+		}
+		keys = Object.keys(obj);
+	}
+
+	function itemsNotMore(a, b){
+		if(a.join() !== b.join()){
+			for(var i = 0, l = a.length; i < l; i++){
+				if(a[i] > b[i]){
+					return false;
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function arraysEqual(a, b) {
+		if (a === b) return true;
+		if (a == null || b == null) return false;
+		if (a.length != b.length) return false;
+
+		for (var i = 0; i < a.length; ++i) {
+			if (a[i] !== b[i]) return false;
+		}
+		return true;
+	}
+
+	function sum(target) {
+		return target.reduce(function(a, b){ return a + b }, 0);
+	}
+
+	function mapOne(test, key) {
+		var origin = base.slice();
+		var baseSum = sum(base);
+		var testSum = 0;
+
+		for(var i = 0, l = test.length; i < l; i++){
+			testSum = sum(test[i]);
+			if(testSum - baseSum === min){
+				if(itemsNotMore(base, test[i])){
+					base = test[i];
+					obj[key].push(base);
+					test = test.slice(i + 1);
+					break;
+				}
+			}
+		}
+		if(!!test.length && test.length < targetSize){
+			var hasMore = test.some(function(item){ return itemsNotMore(base, item) });
+			var isEquals = arraysEqual(origin, base);
+
+			if(hasMore){
+				min = isEquals ? min + 1 : 1;
+				mapOne(test, key);
+			} else {
+				return;
+			}
+		} else {
+			if(test.length === targetSize){
+				var hasMore = test.some(function(item){ return itemsNotMore(base, item) })
+				if(hasMore){
+					min++;
+					mapOne(test, key);
+				} else {
+					return;
+				}
+			} else {
+				return;
+			}
+		}
+	}
+
+}
+
 function verifySystem(){
 	var base = data[settings.key];
 
@@ -348,10 +488,210 @@ function verifySystem(){
 		}
 		return res;
 	}).then(function(arr){
-		data.verificationResult = arr;
+		data.verificationResult = arr.slice();
 		// levelDown(data, base, function(results){
 		// 	console.log(results);
 		// });
+
+		var a = data[settings.key];
+		var obj = {};
+		var objB = {};
+		console.log(a);
+debugger;
+		for(var i = 0, l = a.length; i < l; i++){
+			obj[a[i]] = []; //mapLargestArray(a[i], i, a);
+		}
+
+		// for(var key in obj){
+		// 	obj[key]._ = [];
+		// 	for(var n = 0, m = obj[key].length; n < m; n++){
+		// 		obj[key]._.push(obj[key], obj[obj[key][n]]);
+		// 	}
+		// }
+
+		for(var key in obj){
+			for(var n = 0, m = obj[key].length; n < m; n++){
+				// obj[key][n] = obj[key][n].map(function(it){ return Number(it); });
+			}
+		}
+		var ser = {};
+		var tar = a.map(function(it){ return it = it.split(',').map(function(ti){ return Number(ti); }); });
+		var ttt = tar.slice();
+		var min = 1;
+		var currentIndex = 0;
+		var keys = Object.keys(obj);
+		
+		console.log(tar);
+		var tarL = tar.length;
+
+		function itemsNotMore(a, b){
+			if(a.join() !== b.join()){
+				for(var i = 0, l = a.length; i < l; i++){
+					if(a[i] > b[i]){
+						return false;
+					}
+				}
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function arraysEqual(a, b) {
+			if (a === b) return true;
+			if (a == null || b == null) return false;
+			if (a.length != b.length) return false;
+
+			for (var i = 0; i < a.length; ++i) {
+				if (a[i] !== b[i]) return false;
+			}
+			return true;
+		}
+
+		function mapOne(test, key) {
+			var origin = base.slice();
+			var baseSum = sum(base);
+			var testSum = 0;
+
+			for(var i = 0, l = test.length; i < l; i++){
+				testSum = sum(test[i]);
+				if(testSum - baseSum === min){
+					if(itemsNotMore(base, test[i])){
+						base = test[i];
+						obj[key].push(base);
+						test = test.slice(i + 1);
+						ttt[currentIndex] = null;
+						break;
+					}
+				}
+			}
+			if(!!test.length && test.length < tarL){
+				var hasMore = test.some(function(item){ return itemsNotMore(base, item) });
+				var isEquals = arraysEqual(origin, base);
+
+				if(hasMore){
+					min = isEquals ? min + 1 : 1;
+					mapOne(test, key);
+				} else {
+					return;
+				}
+			} else {
+				if(test.length === tarL){
+					var hasMore = test.some(function(item){ return itemsNotMore(base, item) })
+					if(hasMore){
+						min++;
+						mapOne(test, key);
+					} else {
+						return;
+					}
+				} else {
+					return;
+				}
+			}
+		}
+		for(var key in obj){
+			currentIndex = keys.indexOf(key);
+			var base = key.split(',').map(function(it){ return Number(it); });
+			min = 1;
+			mapOne(tar, key);
+		}
+		console.log(obj);
+		console.log(ttt);
+
+		for(var key in obj){
+			obj[key].s = obj[key].join();
+		}
+
+		var str = '';
+		for(var i = 1, l = keys.length; i < l; i++){
+			str = keys[i] + ',';
+			if(str + obj[keys[i]].s === obj[keys[i-1]].s){
+				obj[keys[i]].r = true;
+			}
+		}
+
+		for(var key in obj){
+			if(!!obj[key].r){
+				delete obj[key];
+			}
+		}
+		keys = Object.keys(obj);
+		
+		for(var key in obj){
+			var s = obj[key].s;
+
+			for(var i = 1, l = keys.length; i < l; i++){
+				str = keys[i] + ',';
+				if(str + obj[keys[i]].s === s){
+					obj[keys[i]].r = true;
+				}
+			}
+		}
+
+		for(var key in obj){
+			if(!!obj[key].r){
+				delete obj[key];
+			}
+		}
+
+		console.log(obj);
+
+		return;
+		console.log(obj[Object.keys(obj)[0]]);
+		// console.log(obj[Object.keys(obj)[0]].sort(sortLarge));
+		// var avgs = obj[Object.keys(obj)[0]].map(findAvg);
+		// console.log(avgs);
+
+		var bar = Object.keys(obj)[0].split(',').map(function(it){ return Number(it); });
+
+		obj[Object.keys(obj)[0]].forEach(function(ar){
+			sortLarge(bar, ar);
+		});
+
+		var aa = obj[Object.keys(obj)[0]].map(function(ii){
+			return sortLarge(bar, ii);
+		})
+		console.log(aa);
+
+		function sum(target) {
+			return target.reduce(function(a, b){ return a + b }, 0);
+		}
+
+		function findAvg(target){
+			return target.reduce(function(a, b){ return a + b }, 0) / target.length;
+		}
+
+		function sortLarge(a, b){
+			var res = [];
+			for(var i = 0, n = a.length; i < n; i++){
+				// if(a[i] > b[i]) res.push(1);
+				if(a[i] < b[i]) res.push(a[i] - b[i]);
+				if(a[i] === b[i]) res.push(0);
+			}
+			var diff = res.reduce(function(z,x){ return z - x }, 0);
+			if(diff === 1) return b;
+			// console.log(a.join(), b.join(), res, res.reduce(function(z,x){ return z - x }, 0));
+			// return 0;
+		}
+
+		function mapLargestArray(arr, i, base){
+			var result = [];
+			var isStr = typeof arr === 'string';
+			var l = base.length, n = 0, a1 = isStr ? arr.split(',') : arr, a2;
+			for(n = 0; n < l; n++){
+				a2 = typeof base[n] === 'string' ? base[n].split(',') : base[n];
+				if(i !== n){
+					if(compareArrays(a1, a2)){
+						result.push(a2)
+					}
+				}
+			}
+			return result;
+		}
+
+		debugger;
+		return;
+
 		data.verificationResult.forEach(checkLevel);
 
 		data.verificationResult = data.verificationResult.filter(function(item){ return !!item; });
