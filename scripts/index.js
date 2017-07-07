@@ -20,13 +20,19 @@ var data = {
 	woAlternates: [],
 	strict: [],
 	verificationResult: [],
-	treeDataIndex: 0
+	treeDataIndex: 0,
+	pinsCount: 3,
+	pinHeightsValid: false,
+	markers: {}
 };
 
 function initialize(){
 	nodes = {
 		pins: document.getElementById('pins'),
 		heights: document.getElementById('heights'),
+		counter: document.getElementById('pins-count'),
+		buildPinsMarkers: document.getElementById('build-pins-marker'),
+		pinsMarkers: document.getElementById('pins-marker'),
 		haveDublicates: document.getElementById('haveDublicates'),
 		haveAlternates: document.getElementById('haveAlternates'),
 		showStatistic: document.getElementById('showStatistic'),
@@ -47,8 +53,15 @@ function initialize(){
 	extendParams();
 }
 
+function extras(){
+	data.build = buildPinsMarker();
+	data.build();
+}
+
 function addEvents(){
 	nodes.pins.addEventListener('keyup', getPins, true);
+	nodes.buildPinsMarkers.addEventListener('click', extras, true);
+	nodes.pinsMarkers.addEventListener('keyup', changeColor, true);
 	nodes.heights.addEventListener('keyup', getHeight, true);
 	nodes.haveDublicates.addEventListener('change', haveDublicates, true);
 	nodes.haveAlternates.addEventListener('change', haveAlternates, true);
@@ -56,6 +69,7 @@ function addEvents(){
 	nodes.getData.addEventListener('click', getData, true);
 	nodes.verify.addEventListener('click', verification, true);
 	nodes.diagram.addEventListener('click', buildTree, true);
+	nodes.counter.addEventListener('click', countingPins, true);
 }
 
 function extendParams(){
@@ -71,6 +85,121 @@ function getPins(){
 
 function getHeight(){
 	settings.heights = this.value;
+}
+
+function changeColor(e){
+	var val = e.target.value;
+	var colEl = e.target.parentNode.parentNode;
+	var nodes = Array.prototype.slice.call( colEl.parentNode.children );
+	var svg = colEl.querySelector('svg');
+	var border = colEl.querySelector('.border');
+	var duration = 500;
+	var index = nodes.indexOf(colEl);
+	
+	data.markers[index + 1] = val;
+
+	animatePin(/\d*\.?\d+/.test(val) ? 'green' : 'red');
+
+	function animatePin(color){
+		d3.select(svg).select('circle').transition().duration(duration).attr("stroke", color);
+		d3.select(svg).select('line').transition().duration(duration).attr("stroke", color);
+		d3.select(border).transition().duration(duration).style("border-color", color);
+	}
+}
+
+function countingPins(e){
+	switch(e.target.className){
+		case 'minus':
+			data.pinsCount--;
+			if(data.pinsCount <= 0) {
+				data.pinsCount = 0;
+			}
+			e.target.parentNode.querySelector('.num-holder').innerHTML = data.pinsCount;
+			break;
+		case 'plus':
+			data.pinsCount++;
+			if(data.pinsCount > 12) {
+				data.pinsCount = 12;
+			}
+			e.target.parentNode.querySelector('.num-holder').innerHTML = data.pinsCount;
+			break;
+	}
+	data.build();
+}
+
+function buildPinsMarker(){
+	var templateOrigin = nodes.pinsMarkers.innerHTML;
+	nodes.pinsMarkers.innerHTML = '';
+	return function(){
+		var template = '';
+		var html = '';
+		var cols = Math.floor(275/data.pinsCount);
+		nodes.pinsMarkers.innerHTML = '';
+		for(var i = 0; i < data.pinsCount; i++){
+			template = templateOrigin.replace('<div class="col">', '<div class="col" style="width:' + cols + 'px;">' + createMarker(i));
+			html += template;
+		}
+		nodes.pinsMarkers.innerHTML = html;
+	}
+}
+
+function createMarker(label){
+	var fragment = document.createDocumentFragment();
+	var div = document.createElement('div');
+	fragment.appendChild(div);
+	var svg = attrs(d3.select(fragment.firstChild).append("svg"), {
+		width: 20,
+		height: 40
+	});
+
+	var elemEnter = svg.append('g');
+
+	attrs(elemEnter.append("circle"), {
+		cy: 10,
+		cx: 10,
+		r: '30%',
+		stroke: '#757575',
+		fill: '#fff'
+	});
+
+	attrs(elemEnter.append('line'), {
+		x1: 10,
+		y1: 20,
+		x2: 10,
+		y2: 40,
+		strokeWidth: 1,
+		stroke: '#757575'
+	});
+
+	var labelEl = attrs(elemEnter.append("text"), {
+		dx: 7,
+		dy: 14,
+		fill: '#757575'
+	});
+
+	labelEl.text(label + 1);
+
+	labelEl = styles(labelEl, {
+		'font-size': 12,
+		'line-height': 20
+	});
+
+
+	return fragment.firstChild.innerHTML;
+}
+
+function attrs(svgObj, attr){
+	for(var key in attr){
+		svgObj.attr(key, attr[key]);
+	}
+	return svgObj;
+}
+
+function styles(svgObj, attr){
+	for(var key in attr){
+		svgObj.style(key, attr[key]);
+	}
+	return svgObj;
 }
 
 function haveDublicates(){
@@ -228,6 +357,8 @@ function buildTree(){
 }
 
 function getData(){
+	settings.heights = Object.keys(data.markers).join();
+
 	for(var i = 0; i < settings.pins; i++){
 		data.pins.push(settings.heights);
 	}
@@ -248,7 +379,6 @@ function getData(){
 	}
 
 	nodes.vars.innerHTML = data[settings.key].length; 
-	nodes.results.value = data[settings.key].join('\n');
 
 	if(params.showStatistic){
 		nodes.statistic.querySelectorAll('.all > td')[1].innerHTML = data.all.length;
@@ -386,6 +516,33 @@ function verification(){
 
 	clearObject();
 
+	var rootKey = Object.keys(obj)[0].split(',').map(function(it){ return Number(it); });
+	var separate = [];
+	var trees = [];
+
+
+	trees.push(rootKey.join());
+
+	for(var i = 1, l = Object.keys(obj).length; i < l; i ++){
+		var testArr = Object.keys(obj)[i].split(',').map(function(it){ return Number(it); });
+		if(itemsNotMore(rootKey, testArr)){
+			trees.push(testArr.join())
+		} else {
+			separate.push(testArr.join());
+		}
+	}
+
+	function buildTree(){
+		var tree = {};
+		trees.forEach(function(item){
+			tree[item] = [];
+		});
+
+		separate.forEach(function(item){
+			tree[item] = [];
+		});
+	}
+
 	for(var key in obj){
 		nodes.system.tBodies[0].insertRow();
 		var row = nodes.system.tBodies[0].rows[nodes.system.tBodies[0].rows.length - 1];
@@ -396,7 +553,7 @@ function verification(){
 		row.cells[1].innerHTML = obj[key].length;
 	}
 
-	nodes.diagram.style.display = 'none';
+	// nodes.diagram.style.display = 'none';
 
 	function clearObject(){
 		for(var key in obj){

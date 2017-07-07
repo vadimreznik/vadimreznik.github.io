@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="mdl-card__actions">
-          <a href="#tab2" class="mdl-tabs__tab">Далее</a>
+          <a href="#tab2" class="mdl-tabs__tab" id="build-pins-marker">Далее</a>
         </div>
       </div>
     </div>
@@ -52,6 +52,25 @@
               <label class="mdl-textfield__label" for="heights">Высоты пинов</label>
               <span class="mdl-textfield__error">Вводите только числа!</span>
             </div>
+        </div>
+        <div class="mdl-card__actions">
+          <div id="pins-marker">
+            <div class="col">
+              <div class="border">
+                <input type="text" maxlength="5">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="pins-count">
+          <div class="holder">
+            <span class="minus">-</span>
+            <span class="plus">+</span>
+            <span class="number">
+              <span class="num-holder">3</span>
+            </span>
+            <span class="line"></span>
+          </div>
         </div>
         <div class="mdl-card__actions">
           <a href="#tab3" class="mdl-tabs__tab">Далее</a>
@@ -139,11 +158,6 @@
         </div>
         <div class="mdl-card__supporting-text">
           Количество вариантов - <span id="vars"></span>.
-        </div>
-        <div class="mdl-card__actions">
-            <div class="mdl-textfield mdl-js-textfield">
-              <textarea class="mdl-textfield__input" type="text" rows= "7" id="results" ></textarea>
-            </div>
         </div>
         <div class="mdl-card__actions">
             <a href="#tab6" class="mdl-tabs__tab" id="verify">Тестирование системы</a>

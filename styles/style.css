@@ -69,3 +69,99 @@ html, body {
   stroke: #ccc;
   stroke-width: 2px;
 }
+#pins-marker{
+	width: 100%;
+	overflow: hidden;
+}
+#pins-marker .col{
+	display: inline-block;
+	overflow: hidden;
+}
+#pins-marker .col svg{
+	display: block;
+	margin: 0 auto;
+}
+#pins-marker .col .border{
+	height: 20px;
+	border: 1px solid #757575;
+	padding: 1px;
+	border-radius: 4px;
+}
+#pins-marker .col input{
+	padding: 0;
+	border: 0;
+	width: 100%;
+	line-height: 20px;
+	height: 20px;
+	font-size: 14px;
+	outline: none;
+	margin: 0;
+	display: block;
+	text-align: center;
+}
+#pins-count{
+	width: 100px;
+	overflow: hidden;
+	line-height: 16px;
+	font-size: 14px;
+	text-align: center;
+	height: 20px;
+	position: relative;
+	margin: 15px auto 0;
+}
+#pins-count .minus{
+	float: left;
+	width: 20px;
+	height: 20px;
+	box-sizing: border-box;
+	border: 1px solid #757575;
+	border-radius: 10px;
+	background-color: #fff;
+	z-index: 2;
+	position: relative;
+	cursor: pointer;
+}
+#pins-count .plus{
+	float: right;
+	width: 20px;
+	height: 20px;
+	box-sizing: border-box;
+	border: 1px solid #757575;
+	border-radius: 10px;
+	background-color: #fff;
+	z-index: 2;
+	position: relative;
+	cursor: pointer;
+}
+#pins-count .minus:hover,
+#pins-count .plus:hover{
+	background-color: #757575;
+	color: #fff;
+}
+#pins-count .number{
+	display: inline-block;
+	width: 60px;
+	height: 20px;
+	box-sizing: border-box;
+	z-index: 2;
+	position: relative;
+}
+#pins-count .number .num-holder{
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	box-sizing: border-box;
+	border: 1px solid #757575;
+	border-radius: 10px;
+	background-color: #fff;
+}
+#pins-count .line{
+	border-top: 1px solid #757575;
+	position: absolute;
+	left: 0;
+	top: 50%;
+	margin-top: -1px;
+	width: 100px;
+	height: 1px;
+	z-index: 1;
+}
