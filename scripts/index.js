@@ -471,7 +471,7 @@ function levelDown(arr, base, callback){
 function verification(){
 	var arr = data[settings.key];
 	var obj = {};
-
+debugger;
 	for(var i = 0, l = arr.length; i < l; i++){
 		obj[arr[i]] = [];
 	}
@@ -515,6 +515,93 @@ function verification(){
 	}
 
 	clearObject();
+
+	output('Step 1');
+	output('------');
+	for(var t in obj){
+		output(t + ' => ' + obj[t].length);
+	}
+	output('------');
+	output('');
+	
+
+	// try to build a tree
+
+	var o = JSON.parse(JSON.stringify(obj));
+	var k = Object.keys(o);
+
+	var ress = [];
+	var res = {};
+debugger;
+	
+	for(var pin in o){
+		if(o.hasOwnProperty(pin)){
+			ress.push(buildBranch({}, pin, obj[pin]));
+		}
+	}
+
+	output('Step 2');
+	output('------');
+
+	output(JSON.stringify(ress[0], "", 4))
+	
+	output('------');
+	output('');
+
+	function buildBranch(ob, name, array){
+		ob.name = name;
+		ob.children = array.map(function(el){
+			var e = el.join();
+			if(o[e] && o[e].length > 0){
+				var a = o[e].slice();
+				delete o[e];
+				return buildBranch({}, e, a);
+			} else {
+				return {name: e};
+			}
+		});
+		return ob;
+	}
+
+	debugger;
+	//
+
+	var results = [];
+	var same = [];
+	var resKeys = Object.keys(obj);
+	var targetA = resKeys[0].split(',').map(function(it){ return Number(it); });
+
+	for(var i = 0, l = resKeys.length; i < l; i++){
+		var targetA = resKeys[i].split(',').map(function(it){ return Number(it); });
+		if(resKeys[i + 1]){
+			for(var y = i + 1; y < l; y++){
+				var targetB = resKeys[y].split(',').map(function(it){ return Number(it); });
+				if(itemsNotMore(targetA, targetB)){
+					same.push(targetA);
+					targetA = targetB;
+				}
+			}
+			if(same.length > 0){
+				results.push(same);
+			}
+			same = [];
+		}
+	}
+
+	output('Step 3');
+	output('------');
+	var ttt = results.map(function(it){ 
+		it = it.map(function(ti){ return String(ti); }); 
+		return it;
+	});
+	for(var t = 0, tt = ttt.length; t < tt; t++){
+		output(JSON.stringify(ttt[t], "", 4))
+	}
+
+	output('------');
+	output('');
+
+	debugger;
 
 	var rootKey = Object.keys(obj)[0].split(',').map(function(it){ return Number(it); });
 	var separate = [];
@@ -633,6 +720,35 @@ function verification(){
 		}
 	}
 
+}
+
+function output(msg){
+	var output = document.getElementById('output');
+	if(!output){
+		output = document.createElement('div');
+		output.id = 'output';
+		document.body.appendChild(output);
+		output = document.getElementById('output');
+		css(output, {
+			position: 'fixed',
+			left: '0px',
+			top: '0px',
+			border: '1px solid #e2e2e2',
+			width: '300px',
+			height: '300px',
+			overflow: 'auto'
+		});
+	}
+	var html = output.innerHTML;
+
+	output.innerHTML += '<br>' + msg;
+
+}
+
+function css(node, attr){
+	for(var key in attr){
+		node.style[key] = attr[key];
+	}
 }
 
 function verifySystem(){
