@@ -165,3 +165,7 @@ html, body {
 	height: 1px;
 	z-index: 1;
 }
+
+#tab2 .mdl-list__item{
+	display: inline;
+}

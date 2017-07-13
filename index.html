@@ -46,13 +46,23 @@
         <div class="mdl-card__supporting-text">
           Введите высоты пинов в поле ниже, через запятую. Числа должны быть больше нуля и меньше 10.
         </div>
-        <div class="mdl-card__actions">
-            <div class="mdl-textfield mdl-js-textfield">
-              <input class="mdl-textfield__input" type="text" pattern="\b\d[\d,.]*\b" id="heights">
-              <label class="mdl-textfield__label" for="heights">Высоты пинов</label>
-              <span class="mdl-textfield__error">Вводите только числа!</span>
-            </div>
-        </div>
+        <ul class="mdl-list">
+          <li class="mdl-list__item">
+            <a href="#" id="define-63">3</a>
+          </li>
+          <li class="mdl-list__item">
+            <a href="#" id="define-65">5</a>
+          </li>
+          <li class="mdl-list__item">
+            <a href="#" id="define-86">6</a>
+          </li>
+          <li class="mdl-list__item">
+            <a href="#" id="define-1010">10</a>
+          </li>
+          <li class="mdl-list__item">
+            <a href="#" id="define-1021">21</a>
+          </li>
+        </ul>
         <div class="mdl-card__actions">
           <div id="pins-marker">
             <div class="col">
@@ -73,7 +83,7 @@
           </div>
         </div>
         <div class="mdl-card__actions">
-          <a href="#tab3" class="mdl-tabs__tab">Далее</a>
+          <a href="#tab3" class="mdl-tabs__tab" id="gatherInfo">Далее</a>
         </div>
       </div>
     </div>
@@ -83,6 +93,7 @@
           <h2 class="mdl-card__title-text">Настройка системы</h2>
         </div>
         <div class="mdl-card__supporting-text">
+          <p>Количество вариантов - <strong id="comb-cases"></strong>.<br>Примерное время вычисления - <strong id="comb-time"></strong></p>
           Отметьте ниже необходимые правила для точной настройки системы.
         </div>
         <div class="mdl-card__actions">
@@ -97,12 +108,12 @@
             <span class="mdl-switch__label">Разрешить чередование</span>
           </label>
         </div>
-        <div class="mdl-card__actions">
+<!--         <div class="mdl-card__actions">
           <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="showStatistic">
             <input type="checkbox" id="showStatistic" class="mdl-switch__input">
             <span class="mdl-switch__label">Показать статистику</span>
           </label>
-        </div>
+        </div> -->
         <div class="mdl-card__actions">
           <a href="#tab4" class="mdl-tabs__tab" id="getData">Готово</a>
         </div>
@@ -147,7 +158,7 @@
             <a href="#tab5" class="mdl-tabs__tab">Далее</a>
           </div>
         </div>
-        <a href="#tab5" class="mdl-tabs__tab hidden" id="showResult">Результат</a>
+        <a href="#tab6" class="mdl-tabs__tab hidden" id="showResult">Результат</a>
       </div>
     </div>
 

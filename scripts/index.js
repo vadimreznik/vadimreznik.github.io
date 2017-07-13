@@ -9,8 +9,7 @@ var settings = {
 };
 var params = {
 	haveDublicates: false,
-	haveAlternates: false,
-	showStatistic: false
+	haveAlternates: false//,	showStatistic: false
 }
 var data = {
 	pins: [],
@@ -30,7 +29,15 @@ function initialize(){
 	nodes = {
 		pins: document.getElementById('pins'),
 		heights: document.getElementById('heights'),
+		gatherInfo: document.getElementById('gatherInfo'),
+		def63: document.getElementById('define-63'),
+		def65: document.getElementById('define-65'),
+		def86: document.getElementById('define-86'),
+		def1010: document.getElementById('define-1010'),
+		def1021: document.getElementById('define-1021'),
 		counter: document.getElementById('pins-count'),
+		cases: document.getElementById('comb-cases'),
+		time: document.getElementById('comb-time'),
 		buildPinsMarkers: document.getElementById('build-pins-marker'),
 		pinsMarkers: document.getElementById('pins-marker'),
 		haveDublicates: document.getElementById('haveDublicates'),
@@ -42,7 +49,6 @@ function initialize(){
 		progress: document.getElementById('progress'),
 		showResult: document.getElementById('showResult'),
 		results: document.getElementById('results'),
-		vars: document.getElementById('vars'),
 		verify: document.getElementById('verify'),
 		system: document.getElementById('system'),
 		graph: document.getElementById('graph'),
@@ -62,11 +68,18 @@ function addEvents(){
 	nodes.pins.addEventListener('keyup', getPins, true);
 	nodes.buildPinsMarkers.addEventListener('click', extras, true);
 	nodes.pinsMarkers.addEventListener('keyup', changeColor, true);
-	nodes.heights.addEventListener('keyup', getHeight, true);
+	// nodes.heights.addEventListener('keyup', getHeight, true);
+	nodes.def63.addEventListener('click', defHeight63, true);
+	nodes.def65.addEventListener('click', defHeight65, true);
+	nodes.def86.addEventListener('click', defHeight86, true);
+	nodes.def1010.addEventListener('click', defHeight1010, true);
+	nodes.def1021.addEventListener('click', defHeight1021, true);
+
 	nodes.haveDublicates.addEventListener('change', haveDublicates, true);
 	nodes.haveAlternates.addEventListener('change', haveAlternates, true);
-	nodes.showStatistic.addEventListener('change', showStatistic, true);
+	// nodes.showStatistic.addEventListener('change', showStatistic, true);
 	nodes.getData.addEventListener('click', getData, true);
+	nodes.gatherInfo.addEventListener('click', gatheringCombInfo, true);
 	nodes.verify.addEventListener('click', verification, true);
 	nodes.diagram.addEventListener('click', buildTree, true);
 	nodes.counter.addEventListener('click', countingPins, true);
@@ -141,6 +154,91 @@ function buildPinsMarker(){
 		}
 		nodes.pinsMarkers.innerHTML = html;
 	}
+}
+
+function gatheringCombInfo(){
+	var cases = Math.pow(data.pinsCount, Number(settings.pins));
+	var sec = (cases / 699) / 1000;
+	var native = sec;
+	var items = 'сек';
+	var time = native.toFixed(2) + items;
+
+	if(native >= 60){
+		native = native / 60;
+		items = ' мин'
+		time = native.toFixed(2) + items;
+
+		if(native >= 60){
+			native = native / 60;
+			items = ' ч'
+			time = native.toFixed(2) + items;
+
+			if(native >= 24){
+				native = native / 24;
+				items = ' сут'
+				time = native.toFixed(2) + items;
+			}
+		}
+	}
+
+	nodes.cases.innerHTML = cases;
+	nodes.time.innerHTML = time;
+}
+
+function defHeight63(e){
+	data.pinsCount = 3;
+	data.build();
+	var inputs = nodes.pinsMarkers.querySelectorAll('input[type=text]');
+	inputs.forEach(function(input, index){
+		input.value = index + 1;
+		data.markers[index + 1] = input.value;
+	});
+	e.preventDefault();
+	e.stopPropagation();
+}
+function defHeight65(e){
+	data.pinsCount = 5;
+	data.build();
+	var inputs = nodes.pinsMarkers.querySelectorAll('input[type=text]');
+	inputs.forEach(function(input, index){
+		input.value = index + 1;
+		data.markers[index + 1] = input.value;
+	});
+	e.preventDefault();
+	e.stopPropagation();
+}
+function defHeight86(e){
+	data.pinsCount = 6;
+	data.build();
+	var inputs = nodes.pinsMarkers.querySelectorAll('input[type=text]');
+	inputs.forEach(function(input, index){
+		input.value = index + 1;
+		data.markers[index + 1] = input.value;
+	});
+	e.preventDefault();
+	e.stopPropagation();
+}
+function defHeight1010(e){
+	data.pinsCount = 10;
+	data.build();
+	var inputs = nodes.pinsMarkers.querySelectorAll('input[type=text]');
+	inputs.forEach(function(input, index){
+		input.value = index + 1;
+		data.markers[index + 1] = input.value;
+	});
+	e.preventDefault();
+	e.stopPropagation();
+}
+function defHeight1021(e){
+	data.pinsCount = 21;
+	data.build();
+	var inputs = nodes.pinsMarkers.querySelectorAll('input[type=text]');
+	inputs.forEach(function(input, index){
+		input.value = index + 1;
+		data.markers[index + 1] = input.value;
+	});
+	e.preventDefault();
+	e.stopPropagation();
 }
 
 function createMarker(label){
@@ -363,10 +461,24 @@ function getData(){
 		data.pins.push(settings.heights);
 	}
 
-	data.all = combinations({ arr: data.pins }, ',');
-	data.woDublicates = data.all.filter(function(item){ return isKeyHasValidPairs(item.split(',')); });
-	data.woAlternates = data.all.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
-	data.strict = data.woDublicates.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
+	var start = new Date;
+
+	var p = new Parallel(data.pins).require(isArray, combinations).spawn(function(data){
+		var res;
+		res = combinations({ arr: data }, ',');
+		return res;
+	}).then(function(res){
+		var end = new Date - start;
+		console.log(end);
+		debugger;
+		data.all = res;
+		data.woDublicates = data.all.filter(function(item){ return isKeyHasValidPairs(item.split(',')); });
+		data.woAlternates = data.all.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
+		data.strict = data.woDublicates.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
+
+		nodes.verify.click();
+	});
+
 
 	if(!params.haveDublicates && params.haveAlternates){
 		settings.key = 'woDublicates';
@@ -376,20 +488,6 @@ function getData(){
 		settings.key = 'strict';
 	} else {
 		settings.key = 'all';
-	}
-
-	nodes.vars.innerHTML = data[settings.key].length; 
-
-	if(params.showStatistic){
-		nodes.statistic.querySelectorAll('.all > td')[1].innerHTML = data.all.length;
-		nodes.statistic.querySelectorAll('.woDublicates > td')[1].innerHTML = data.woDublicates.length;
-		nodes.statistic.querySelectorAll('.woAlternates > td')[1].innerHTML = data.woAlternates.length;
-		nodes.progress.style.display = 'none';
-		nodes.hiddenContent.style.display = 'block';
-	} else {
-		setTimeout(function(){
-			nodes.showResult.click();
-		}, 500);
 	}
 }
 
@@ -471,7 +569,7 @@ function levelDown(arr, base, callback){
 function verification(){
 	var arr = data[settings.key];
 	var obj = {};
-debugger;
+
 	for(var i = 0, l = arr.length; i < l; i++){
 		obj[arr[i]] = [];
 	}
@@ -483,12 +581,16 @@ debugger;
 	var targetSize = target.length;
 	var str = '';
 
+	var start = new Date;
+
 	for(var key in obj){
 		var base = key.split(',').map(function(it){ return Number(it); });
 		currentIndex = keys.indexOf(key);
 		min = 1;
 		mapOne(target, key);
 	}
+	var end = new Date - start;
+	console.log(end);
 
 	for(var key in obj){
 		obj[key].s = obj[key].join();
@@ -516,15 +618,6 @@ debugger;
 
 	clearObject();
 
-	output('Step 1');
-	output('------');
-	for(var t in obj){
-		output(t + ' => ' + obj[t].length);
-	}
-	output('------');
-	output('');
-	
-
 	// try to build a tree
 
 	var o = JSON.parse(JSON.stringify(obj));
@@ -539,14 +632,6 @@ debugger;
 			ress.push(buildBranch({}, pin, obj[pin]));
 		}
 	}
-
-	output('Step 2');
-	output('------');
-
-	output(JSON.stringify(ress[0], "", 4))
-	
-	output('------');
-	output('');
 
 	function buildBranch(ob, name, array){
 		ob.name = name;
@@ -587,19 +672,6 @@ debugger;
 			same = [];
 		}
 	}
-
-	output('Step 3');
-	output('------');
-	var ttt = results.map(function(it){ 
-		it = it.map(function(ti){ return String(ti); }); 
-		return it;
-	});
-	for(var t = 0, tt = ttt.length; t < tt; t++){
-		output(JSON.stringify(ttt[t], "", 4))
-	}
-
-	output('------');
-	output('');
 
 	debugger;
 
@@ -1082,6 +1154,7 @@ function combinations(args, joinWith) {
     }
     myCopy = copies.splice(0, 1)[0];
     exprLen = myCopy.length;
+
     for (i = 0; i < exprLen; i += 1) {
       currentChar = myCopy[i];
       result = prefix + (joinWith || '') + currentChar;
