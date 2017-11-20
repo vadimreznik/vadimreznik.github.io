@@ -42,6 +42,7 @@ function initialize(){
 		pinsMarkers: document.getElementById('pins-marker'),
 		haveDublicates: document.getElementById('haveDublicates'),
 		haveAlternates: document.getElementById('haveAlternates'),
+		customDublicates: document.getElementById('customDublicates'),
 		showStatistic: document.getElementById('showStatistic'),
 		statistic: document.getElementById('statistic'),
 		getData: document.getElementById('getData'),
@@ -454,7 +455,13 @@ function buildTree(){
 	}
 }
 
-function getData(){
+function getData(e){
+	if(nodes.customDublicates.value.trim() === ''){
+		e.stopPropagation();
+		e.preventDefault();
+		return false;
+	}
+	settings.customDublicates = nodes.customDublicates.value.trim();
 	settings.heights = Object.keys(data.markers).join();
 
 	for(var i = 0; i < settings.pins; i++){
@@ -472,23 +479,30 @@ function getData(){
 		console.log(end);
 		debugger;
 		data.all = res;
-		data.woDublicates = data.all.filter(function(item){ return isKeyHasValidPairs(item.split(',')); });
-		data.woAlternates = data.all.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
-		data.strict = data.woDublicates.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
+
+		data.customDublicates = data.all.filter(function(item){ return filterByCustomDublicates(item); });
+		data.andWoAlternates = data.customDublicates.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
+
+		// data.woDublicates = data.all.filter(function(item){ return isKeyHasValidPairs(item.split(',')); });
+		// data.woAlternates = data.all.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
+		// data.strict = data.woDublicates.filter(function(item){ return isKeyHasAlternatePairs(item.split(',')); });
+
+
 
 		nodes.verify.click();
 	});
 
+	settings.key = params.haveAlternates ? 'customDublicates' : 'andWoAlternates';
 
-	if(!params.haveDublicates && params.haveAlternates){
-		settings.key = 'woDublicates';
-	} else if(params.haveDublicates && !params.haveAlternates){
-		settings.key = 'woAlternates';
-	} else if(!params.haveDublicates && !params.haveAlternates){
-		settings.key = 'strict';
-	} else {
-		settings.key = 'all';
-	}
+	// if(!params.haveDublicates && params.haveAlternates){
+	// 	settings.key = 'woDublicates';
+	// } else if(params.haveDublicates && !params.haveAlternates){
+	// 	settings.key = 'woAlternates';
+	// } else if(!params.haveDublicates && !params.haveAlternates){
+	// 	settings.key = 'strict';
+	// } else {
+	// 	settings.key = 'all';
+	// }
 }
 
 function countDepthLevel(o, key, count){
@@ -1110,6 +1124,14 @@ function compareArrays(a1, a2){
 	} else {
 		return false;
 	}
+}
+
+function filterByCustomDublicates(pins){
+	var regExpStringCurrent = '(,?\\d,?)\\1{0,' + (settings.customDublicates - 1) +'}';
+	var regExpStringNext = '(,?\\d,?)\\1{' + (settings.customDublicates) +'}';
+	var regExpCurrent = new RegExp(regExpStringCurrent, 'g');
+	var regExpNext = new RegExp(regExpStringNext, 'g');
+	return (regExpCurrent.test(pins) && !(regExpNext.test(pins)));
 }
 
 function isKeyHasValidPairs(pins){

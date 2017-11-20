@@ -96,7 +96,7 @@
           <p>Количество вариантов - <strong id="comb-cases"></strong>.<br>Примерное время вычисления - <strong id="comb-time"></strong></p>
           Отметьте ниже необходимые правила для точной настройки системы.
         </div>
-        <div class="mdl-card__actions">
+        <div class="mdl-card__actions" style="display: none;">
           <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="haveDublicates">
             <input type="checkbox" id="haveDublicates" class="mdl-switch__input" checked>
             <span class="mdl-switch__label">Разрешить одинаковые пары пинов</span>
@@ -107,6 +107,13 @@
             <input type="checkbox" id="haveAlternates" class="mdl-switch__input" checked>
             <span class="mdl-switch__label">Разрешить чередование</span>
           </label>
+        </div>
+        <div class="mdl-card__actions">
+			<div class="mdl-textfield mdl-js-textfield">
+				<input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="customDublicates">
+				<label class="mdl-textfield__label" for="customDublicates">Количество повторений...</label>
+				<span class="mdl-textfield__error">Введите число!</span>
+			</div>
         </div>
 <!--         <div class="mdl-card__actions">
           <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="showStatistic">
