@@ -725,6 +725,8 @@ debugger;
 		row.cells[0].innerHTML = key;
 		row.cells[1].innerHTML = obj[key].length;
 	}
+debugger;
+	addTableEventHandler(obj);
 
 	// nodes.diagram.style.display = 'none';
 
@@ -805,7 +807,44 @@ debugger;
 			}
 		}
 	}
+}
 
+function addTableEventHandler(obj){
+	var dialog = configureDialog();
+	nodes.system.addEventListener('click', function(e){
+		if(e.target.parentNode.tagName.toLowerCase() === 'tr'){
+			var trs = Array.prototype.slice.call(nodes.system.tBodies[0].rows);
+			var index = trs.indexOf(e.target.parentNode);
+			var dialogContent = dialog.querySelector('.content');
+			var list = dialog.querySelector('.list');
+			var li = list.querySelector('.li').cloneNode(true);
+			list.innerHTML = '';
+			var arrKey = Object.keys(obj)[index];
+			var arrChild = obj[arrKey];
+			arrChild.unshift(arrKey);
+
+			arrChild.forEach(function(item){
+				var liClone = li.cloneNode(true);
+				liClone.querySelector('span').innerHTML = item;
+				list.appendChild(liClone);
+			});			
+
+			dialog.showModal();
+		}
+	}, true);
+
+}
+
+function configureDialog(){
+    var dialog = document.querySelector('dialog');
+    if (!dialog.showModal) {
+      dialogPolyfill.registerDialog(dialog);
+    }
+    
+    dialog.querySelector('.close').addEventListener('click', function(){
+    	dialog.close();
+    });
+    return dialog;
 }
 
 function output(msg){

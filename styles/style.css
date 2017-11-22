@@ -169,3 +169,18 @@ html, body {
 #tab2 .mdl-list__item{
 	display: inline;
 }
+
+.master-system-dialog .content{
+	height: 300px;
+	overflow: auto;
+}
+
+.master-system-dialog .list{
+	margin: 0;
+	padding: 0;
+}
+.master-system-dialog li{
+	padding: 0;
+	line-height: 30px;
+	min-height: 18px;
+}
