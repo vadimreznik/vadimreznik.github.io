@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>SVG</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@latest/dist/svg.min.js"></script>
+    <script src="main.js"></script>
+</head>
+
+<body>
+    <div id="page">
+        <div class="panel">
+            <div class="form">
+                <div class="row">
+                    <label for="attractors">Attractors:</label>
+                    <input id="attractors" type="text">
+                </div>
+                <div class="row">
+                    <label for="show-attractors">Show attractors</label>
+                    <input type="checkbox" id="show-attractors">
+                </div>
+                <div class="row">
+                    <label for="ratio">Ratio:</label>
+                    <input id="ratio" type="text">
+                </div>
+                <div class="row">
+                    <label for="n">N:</label>
+                    <input id="n" type="text">
+                </div>
+                <div class="row">
+                    <div>
+                        <label for="scale">Scale: <span id="current-scale">100</span>%</label>
+                    </div>
+                    <input type="range" min="1" max="200" value="100" step="1" id="scale">
+                </div>
+            </div>
+        </div>
+        <div class="panel" id="holder"></div>
+    </div>
+</body>
+</html>
