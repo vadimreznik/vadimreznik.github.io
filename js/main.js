@@ -17,15 +17,29 @@ function start() {
     const views = container.querySelectorAll('.view')
 
     container.addEventListener('click', (e) => {
-        if(e.target.classList.contains('button') || e.target.parentNode.classList.contains('button')){
+        if(e.target.closest('.button') && e.target.closest('.button').dataset && e.target.closest('.button').dataset.target){
             removeActiveFromViews();
-            let target = e.target.dataset.target || e.target.parentNode.dataset.target;
+            let target = e.target.closest('.button').dataset.target;
             container.classList.add('view-change');
             container.querySelector(`.${target}`).classList.add('active');
             if(target === 'home-view'){
                 container.classList.remove('view-change');
                 homeView.classList.remove('active');
                 removeActiveFromViews();
+            }
+        }
+        if(e.target.closest('.button') && e.target.closest('.button').classList.contains('add-player')){
+            const form = e.target.closest('.form'); 
+            const row = form.querySelector('.row').cloneNode(true);
+            const inputs = row.querySelectorAll('input');
+            for (const input of inputs) {
+                input.value = '';
+            }
+            form.insertBefore(row, form.querySelector('.controls'));
+        }
+        if(e.target.closest('.button') && e.target.closest('.button').classList.contains('remove-player')){
+            if(e.target.closest('.form').querySelectorAll('.row').length > 1){
+                e.target.closest('.form').removeChild(e.target.closest('.row'));
             }
         }
     });

@@ -49,14 +49,22 @@ body {
 }
 
 .home-view .view-content{
-  display: flex;
-  width: 100%;
   height: calc(100vh - 58px);
-  align-items: center;
 }
 
 .home-view .view-content h1{
   margin: 0 auto;
+}
+
+/* common view content */
+.view .view-content{
+  display: flex;
+  width: 100%;
+  padding: 58px 10px 10px;
+  height: calc(100vh - 58px);
+  align-items: center;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* view header component */
@@ -70,12 +78,22 @@ body {
   display: flex;
   align-items: center;
   padding: 0 10px;
+  background-color: #eee;
 }
 
 .header-component .title{
   margin: 0;
   font-size: 18px;
   line-height: 20px;
+}
+
+.header-component .controls{
+  position: absolute;
+  right: 10px;
+}
+
+.header-component .controls .button{
+  border: none;
 }
 
 /* bottom navigation */
@@ -103,7 +121,59 @@ body {
   cursor: pointer;
 }
 
+.button.no-border{
+  border: none;
+  margin: 0;
+}
+
+.button.remove-player{
+  width: 5%;
+  flex-grow: initial;
+}
+
+.button.remove-player svg{
+  margin: 0 auto;
+}
+
 .button span{
   display: block;
   margin: 0 auto;
+}
+
+/* form */
+.form {
+  width: 100%;
+}
+
+.form .row{
+  width: 100%;
+  overflow: hidden;
+  margin: 0 0 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.form .row input[type="text"]{
+  margin: 0;
+  padding: 5px;
+  border: 1px solid #aaa;
+  height: 26px;
+  font-size: 24px;
+  line-height: 26px;
+}
+
+.form .row input.player-name{
+  border-width: 0 0 1px;
+  width: 70%;
+}
+
+.form .row input.player-card{
+  width: 15%;
+
+}
+
+.players{
+  width: 100%;
+  height: calc(100vh - 120px);
+  overflow-x: auto;
 }
