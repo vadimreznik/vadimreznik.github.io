@@ -16,9 +16,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="white" />
 </head>
+
 <body class="fullscreen">
     <div class="container">
-        <h1 class="title">Hello World!</h1>
+        <div class="view home-view">
+            <div class="view-content">
+                <h1>Lotto Assistant</h1>
+            </div>
+            <div class="navigation">
+                <span class="button" data-target="round-start-view"><span>New Game</span></span>
+                <span class="button" data-target="score-view"><span>Score</span></span>
+                <span class="button" data-target="app-settings-view"><span>Settings</span></span>
+            </div>
+        </div>
+        <div class="view app-settings-view">
+            <div class="header-component">
+                <h3 class="title">Settings</h3>
+            </div>
+
+            <div class="navigation">
+                <span class="button" data-target="home-view"><span>Back</span></span>
+                <span class="button" data-target="home-view"><span>Save</span></span>
+            </div>
+        </div>
+        <div class="view round-settings-view"></div>
+        <div class="view round-start-view">
+
+            <div class="navigation">
+                <span class="button" data-target="home-view"><span>Back</span></span>
+                <span class="button" data-target="home-view"><span>Save</span></span>
+            </div>
+        </div>
+        <div class="view round-view"></div>
+        <div class="view game-completed-view"></div>
+        <div class="view score-view">
+            <div class="navigation">
+                <span class="button" data-target="home-view"><span>Back</span></span>
+                <span class="button" data-target="home-view"><span>Save</span></span>
+            </div>
+        </div>
     </div>
     <script src="js/main.js"></script>
 </body>
