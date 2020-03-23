@@ -4,6 +4,20 @@ window.onload = () => {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker
             .register('./sw.js');
+
+            navigator.serviceWorker.addEventListener('install', function (event) {
+            event.waitUntil(
+                caches.keys().then(function (cacheNames) {
+                    return Promise.all(
+                        cacheNames.filter(function (cacheName) {
+                            return true;
+                        }).map(function (cacheName) {
+                            return caches.delete(cacheName);
+                        })
+                    );
+                })
+            );
+        });
     }
 
     start();
@@ -17,12 +31,12 @@ function start() {
     const views = container.querySelectorAll('.view')
 
     container.addEventListener('click', (e) => {
-        if(e.target.classList.contains('button') || e.target.parentNode.classList.contains('button')){
+        if (e.target.classList.contains('button') || e.target.parentNode.classList.contains('button')) {
             removeActiveFromViews();
             let target = e.target.dataset.target || e.target.parentNode.dataset.target;
             container.classList.add('view-change');
             container.querySelector(`.${target}`).classList.add('active');
-            if(target === 'home-view'){
+            if (target === 'home-view') {
                 container.classList.remove('view-change');
                 homeView.classList.remove('active');
                 removeActiveFromViews();
@@ -30,7 +44,7 @@ function start() {
         }
     });
 
-    function removeActiveFromViews(){
+    function removeActiveFromViews() {
         for (const view of views) {
             view.classList.remove('active');
         }
