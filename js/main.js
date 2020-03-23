@@ -5,7 +5,7 @@ window.onload = () => {
         navigator.serviceWorker
             .register('./sw.js');
 
-            navigator.serviceWorker.addEventListener('install', function (event) {
+            navigator.serviceWorker.addEventListener('activate', function (event) {
             event.waitUntil(
                 caches.keys().then(function (cacheNames) {
                     return Promise.all(
