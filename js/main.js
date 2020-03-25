@@ -18,7 +18,8 @@ const userItem = {
     id: null,
     name: '',
     cards: 0,
-    cardsPerRound: []
+    cardsPerRound: [],
+    score: 0
 };
 
 window.onload = () => {
@@ -28,16 +29,119 @@ window.onload = () => {
         navigator.serviceWorker
             .register('./sw.js');
     }
-
     start();
 }
 
-const hashCode = s => s.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+const hashCode = s => s.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0);
+
+function calculateGameTime() {
+    let s = gameResult.rounds.map(round => round.time.s);
+    let m = gameResult.rounds.map(round => round.time.m);
+    let h = gameResult.rounds.map(round => round.time.h);
+
+    sec = s.reduce((x, y) => x + y, 0);
+    min = m.reduce((x, y) => x + y, 0) + Math.floor(sec / 60 % 60);
+    hrs = h.reduce((x, y) => x + y, 0) + Math.floor(min / 60 % 60);
+
+    return `${hrs}:${parseInt(min % 60)}:${parseInt(sec % 60)}`;
+}
+
+function gameReport() {
+    let report = [];
+    gameResult.users.forEach(user => {
+        let investment = user.cardsPerRound.reduce((x, y) => x + y, 0);
+        report.push(`${user.name} invested ${investment} and won ${user.score}. Profit is ${user.score - investment}`)
+    });
+    return report;
+}
+
+function tableOfWinner() {
+    return gameResult.users.map(user => user.name).reduce((x, y) => {
+        x[y] = gameResult.rounds.filter(round => round.winner === y).length;
+        return x;
+    }, {});
+}
+
+function lookingForWinner(player) {
+    return config.users.filter(user => user.name === player)[0];
+}
+
+function checkBank() {
+    config.users.forEach(user => {
+        let was = user.cardsPerRound[config.rounds.length - 1];
+        let now = user.cards;
+        config.bank += (now - was);
+    });
+}
+
+function calculateGameBank(isFinish) {
+    const lastRound = config.rounds[config.rounds.length - 1];
+    const lastRoundWinnerName = lastRound.winner;
+    const lastRoundRow = lastRound.row;
+    const winner = lookingForWinner(lastRoundWinnerName);
+
+    switch (lastRoundRow) {
+        case 0:
+            winner.score += winner.cards;
+            config.bank -= winner.cards;
+            break;
+        case 1:
+            let halfOfBank = config.bank / 2;
+            winner.score += halfOfBank;
+            config.bank = halfOfBank;
+            break;
+        case 2:
+            winner.score += config.bank;
+            config.bank = 0;
+            break;
+    }
+    if (!isFinish) {
+        config.users.forEach(user => {
+            config.bank += user.cards
+        });
+    }
+}
+
+const timer = {
+    seconds: 0,
+    interval: null,
+    time: {
+        h: 0,
+        m: 0,
+        s: 0
+    },
+    start: () => {
+        timer.interval = setInterval(() => {
+            timer.seconds++;
+            timer.time.h = Math.floor(timer.seconds / 3600);
+            timer.time.m = Math.floor(timer.seconds / 60 % 60);
+            timer.time.s = parseInt(timer.seconds % 60)
+        }, 1000);
+    },
+    reset: () => {
+        timer.pause();
+        timer.seconds = 0;
+        timer.time = { ...{ h: 0, m: 0, s: 0 } };
+    },
+    pause: () => {
+        clearTimeout(timer.interval);
+        timer.interval = null;
+    },
+    resume: () => {
+        if (!timer.interval) timer.start();
+    },
+    moment: () => {
+        return timer.time;
+    },
+    current: (callback) => {
+        setInterval(() => {
+            callback(timer.time);
+        }, 1000);
+    }
+};
 
 function start() {
     var container = document.querySelector('.container');
-    var backButton = document.querySelector('.back-button');
-    var listItems = document.querySelectorAll('.list-item');
     const homeView = container.querySelector('.home-view');
     const views = container.querySelectorAll('.view')
 
@@ -91,6 +195,8 @@ function start() {
             let round = { ...roundItem };
             round.winner = e.target.closest('.button').querySelector('span').innerHTML;
             round.row = Number(e.target.closest('.button').dataset.winner);
+            round.time = timer.moment();
+            timer.reset();
             config.rounds.push(round);
             e.target.closest('.result').querySelector('.winner').classList.add('hidden');
             e.target.closest('.view').querySelector('.overlay').classList.add('hidden');
@@ -107,11 +213,12 @@ function start() {
                     user.id = hashCode(row.querySelector('.player-name').value);
                     user.name = row.querySelector('.player-name').value;
                     user.cards = Number(row.querySelector('.player-card').value);
-                    user.cardsPerRound.push(Number(row.querySelector('.player-card').value));
+                    // user.defaultCards = Number(row.querySelector('.player-card').value);
                     row.dataset.userid = user.id;
                     config.users.push(user);
                 }
-
+                config.bank = config.users.reduce((x, y) => x + y.cards, 0);
+                container.querySelector('.round-view .bank').innerHTML = `Bank: ${config.bank}`;
                 container.querySelector('.round-view .title span').innerHTML = config.rounds.length + 1;
             }
             if (e.target.closest('.button').dataset.event === 'restart-round') {
@@ -119,17 +226,35 @@ function start() {
                 for (const element of hidden) {
                     element.classList.remove('hidden');
                 }
+                calculateGameBank();
                 container.querySelector('.winner').innerHTML = '';
-                for (const user of config.users) {
-                    user.cardsPerRound.push(user.cards);
-                }
+                container.querySelector('.round-view .bank').innerHTML = `Bank: ${config.bank}`;
                 container.querySelector('.round-view .title span').innerHTML = config.rounds.length + 1;
             }
             if (e.target.closest('.button').dataset.event === 'finish-game') {
+                const hidden = container.querySelectorAll('.hidden');
+                for (const element of hidden) {
+                    element.classList.remove('hidden');
+                }
+                container.querySelector('.winner').innerHTML = '';
+
+                calculateGameBank(true);
+
                 gameResult = { ...config };
                 config.users = [];
                 config.rounds = [];
                 config.bank = 0;
+
+                const view = document.querySelector('.game-completed-view');
+                const text = view.querySelector('.view-content .text');
+                text.innerHTML = `
+                    Remaining bank - ${gameResult.bank}<br />
+                    Total played rounds - ${gameResult.rounds.length}<br />
+                    Total game time is ${calculateGameTime()}<br />
+                    ${Object.entries(tableOfWinner()).map(([key, value]) => `<br />${key} won ${value} round(s)`).join('')}<br />
+                    <br/>
+                    ${gameReport().map(userReport => `<br/>${userReport}`).join('')}
+                `;
                 console.log(gameResult);
             }
             if (e.target.closest('.button').dataset.event === 'save-game-settings') {
@@ -139,13 +264,18 @@ function start() {
             }
             if (e.target.closest('.button').dataset.event === 'finish-round') {
                 container.querySelector('.round-completed-view .title  span').innerHTML = config.rounds.length + 1;
+                for (const user of config.users) {
+                    user.cardsPerRound.push(user.cards);
+                }
+                timer.pause();
             }
-            if (e.target.closest('.button').dataset.event === 'change-round-settings') { 
+            if (e.target.closest('.button').dataset.event === 'change-round-settings') {
                 const btn = container.querySelector('.round-start-view .start-btn');
                 btn.dataset.event = 'save-round-settings';
                 btn.querySelector('span').innerHTML = 'Resume Game';
+                timer.pause();
             }
-            if (e.target.closest('.button').dataset.event === 'save-round-settings') { 
+            if (e.target.closest('.button').dataset.event === 'save-round-settings') {
                 const btn = container.querySelector('.round-start-view .start-btn');
                 btn.dataset.event = 'start-game';
                 btn.querySelector('span').innerHTML = 'Start Game';
@@ -157,10 +287,25 @@ function start() {
                 for (const row of rows) {
                     let userName = row.querySelector('.player-name').value;
                     let userCards = Number(row.querySelector('.player-card').value);
-                    let user = config.users.filter(item => item.id === row.dataset.userid)[0];
-                    user.name = userName;
-                    user.cards = userCards;
+                    config.users.forEach(user => {
+                        if (user.id == row.dataset.userid) {
+                            user.name = userName;
+                            user.cards = userCards;
+                        }
+                    });
                 }
+                checkBank();
+                container.querySelector('.round-view .bank').innerHTML = `Bank: ${config.bank}`;
+                timer.resume();
+            }
+            if (e.target.closest('.button').dataset.event === 'start-game' || e.target.closest('.button').dataset.event === 'restart-round') {
+                if (!timer.interval) {
+                    timer.start();
+                }
+                const roundTitle = document.querySelector('.round-view .view-content .title');
+                timer.current((current) => {
+                    roundTitle.innerHTML = `${current.h}:${current.m}:${current.s}`;
+                })
             }
         }
     });
