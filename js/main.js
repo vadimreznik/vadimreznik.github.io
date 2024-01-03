@@ -140,7 +140,22 @@ const timer = {
     }
 };
 
+function demo() {
+
+    new SpinnerPicker(
+        document.getElementById("simple-example"),
+        function (index) {
+            // Check if the index is below zero or above 20 - Return null in this case
+            if (index < 0 || index > 20) {
+                return null;
+            }
+            return index;
+        }, { index: 4 }
+    );
+}
+
 function start() {
+    demo();
     var container = document.querySelector('.container');
     const homeView = container.querySelector('.home-view');
     const views = container.querySelectorAll('.view')
