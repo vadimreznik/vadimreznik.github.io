@@ -15,6 +15,22 @@
     <link rel="manifest" href="manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="white" />
+    <script src="js/spinner_picker.js"></script>
+    <script>
+        window.onload = () => {
+            console.log(1);
+            new SpinnerPicker(
+                    document.getElementById("simple-example"), 
+                    function(index) {
+                        // Check if the index is below zero or above 20 - Return null in this case
+                        if(index < 0 || index > 20) {
+                            return null;
+                        }
+                        return index;
+                    }, { index: 4 }
+                );
+        }
+    </script>
 </head>
 
 <body class="fullscreen">
@@ -63,6 +79,13 @@
                     </div>
                     <div class="row">
                         <input type="date" id="start" name="trip-start" value="2018-07-22" min="2018-01-01" max="2018-12-31" />
+                    </div>
+                    <div class="row">
+                        <div class="demo-sample">
+                            <h1>Example-1</h1>
+                            <h2>Number input 0-20</h2>
+                            <canvas id="simple-example"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
