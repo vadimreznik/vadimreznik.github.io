@@ -245,7 +245,8 @@ input{
 }
 .footer-at-bottom{
   position: fixed;
-  bottom: 60px;
+  top: 100vh;
   left: 0;
   z-index: 9999;
+  margin-top: -120px;
 }
