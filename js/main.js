@@ -29,7 +29,7 @@ window.onload = () => {
         navigator.serviceWorker
             .register('./sw.js');
     }
-    start();
+    // start();
 }
 
 const debounce = (func, wait) => {
