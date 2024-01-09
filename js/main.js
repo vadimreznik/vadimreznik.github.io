@@ -59,6 +59,8 @@ const debounce = (func, wait) => {
     }, 100)
   );
 
+  demo();
+
 const hashCode = s => s.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0);
 
 function calculateGameTime() {
@@ -170,7 +172,7 @@ const timer = {
 function demo() {
 
     new SpinnerPicker(
-        document.getElementById("simple-example"),
+        document.getElementById("wheel"),
         function (index) {
             // Check if the index is below zero or above 20 - Return null in this case
             if (index < 0 || index > 20) {

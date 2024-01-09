@@ -1,15 +1,15 @@
 :root {
-  --canvas: #fff;
+  --canvas: #000;
   --canvastext: #000;
-  --compose-height: 50px;
+  --compose-height: 160px;
 
-  color-scheme: dark light;
+  /* color-scheme: dark light; */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --canvas: #000;
-    --canvastext: #fff;
+    --canvastext: #000;
   }
 }
 
@@ -57,7 +57,6 @@ body {
 }
 
 input {
-  flex-grow: 1;
   font-size: inherit;
   border-radius: 0;
 }
@@ -68,6 +67,8 @@ button:focus-visible {
 }
 
 form {
-  display: flex;
-  height: 100%;
+
 }
+
+.select { width: 100%; border: 1px solid #333333; }
+.select canvas { width: 100%; height: 80px; border: solid black 1px; }
