@@ -34,12 +34,8 @@ body {
 
 .container {
   height: 100%;
-  display: grid;
-  gap: 10px 10px;
-  grid-template:    
-    "messages" 1fr
-    "compose" var(--compose-height)
-    "keyboard" env(keyboard-inset-height, 0px);
+  width: 100%;
+  overflow: hidden;
 }
 
 .view {
@@ -54,6 +50,9 @@ body {
   border: solid 1px var(--canvastext);
   width: 100%;
   height: var(--compose-height);
+  position: absolute;
+  bottom: 0;
+  left: 0;
 }
 
 input {
