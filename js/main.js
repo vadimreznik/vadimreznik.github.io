@@ -32,35 +32,6 @@ window.onload = () => {
     // start();
 }
 
-const h = document.getElementById('h');
-
-const debounce = (func, wait) => {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  };
-  
-  document.documentElement.style.setProperty(
-    "--100vh",
-    `${window.innerHeight}px`
-  );
-  
-  window.addEventListener(
-    "resize",
-    debounce(() => {
-      document.documentElement.style.setProperty(
-        "--100vh",
-        `${window.innerHeight}px`
-      );
-      h.innerText = window.innerHeight;
-    }, 100)
-  );
 
   demo();
 
