@@ -7,6 +7,10 @@ body {
   font-family: 'Helvetica', 'Arial', sans-serif;
 }
 
+body {
+  position: relative;
+}
+
 input{
   outline: none;
 }
@@ -249,4 +253,5 @@ input{
   left: 0;
   z-index: 9999;
   margin-top: -120px;
+  margin-block-end: env(keyboard-inset-height, 50px);
 }
