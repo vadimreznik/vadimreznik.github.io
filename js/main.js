@@ -148,16 +148,28 @@ const timer = {
 };
 
 function demo() {
-
+    const val = document.getElementById('val');
+    var selectableFruits = ["Apples", "Apricots", "Avocados", "Bananas", "Boysenberries", "Blueberries", "Bing Cherry", "Cherries", "Cantaloupe", "Crab apples", "Clementine", "Cucumbers", "Damson plum", "Pluots", "Dates", "Dewberries", "Dragon Fruit", "Elderberry", "Eggfruit", "Evergreen Huckleberry", "Entawak", "Fig", "Farkleberry", "Finger Lime", "Grapefruit", "Grapes", "Gooseberries", "Guava", "Honeydew melon", "Hackberry", "Honeycrisp Apples", "Plum", "Indonesian Lime", "Imbe", "Indian Fig", "Jackfruit", "Java Apple", "Jambolan", "Kiwi", "Kaffir Lime", "Kumquat", "Lemon", "Longan", "Lychee", "Loquat", "Mango", "Mandarin Orange", "Mulberry", "Melon", "Nectarine", "Navel Orange", "Nashi Pear", "Olive", "Oranges", "Ogeechee Limes", "Oval Kumquat", "Papaya", "Persimmon", "Paw Paw", "Prickly Pear", "Peach", "Pomegranate", "Pineapple", "Quince", "Queen Anne Cherry", "Chupa Chupa", "Rambutan", "Raspberries", "Rose Hips", "Star Fruit", "Strawberries", "Sugar Baby Watermelon", "Tomato", "Tangerine", "Tamarind", "Tart Cherries", "Ugli Fruit", "Uniq Fruit", "Ugni", "Vanilla Bean", "Velvet Pink Banana", "Voavanga", "Watermelon", "Wolfberry", "White Mulberry", "Xigua", "Yellow Passion Fruit", "Yunnan Hackberry", "Yangmei", "Zig Zag Vine fruit", "Zinfandel Grapes", "Zucchini"];
+    var config = {
+        index: 0,                   // Default index
+        animation_speed: 3,        // Animation speed (can be left like this)
+        animation_steps: 5,         // Animation steps (decrease this value to increase the performance and reversed)
+        font_color: "#000000",      // Color of font
+        selection_color: "#518ee8", // Color of selected item
+        font: "Arial",              // Font style
+    };
+    var onchanged = function(index) {
+        val.innerHTML = `Selected: ${selectableFruits[index]}`
+    };
     new SpinnerPicker(
         document.getElementById("wheel"),
         function (index) {
             // Check if the index is below zero or above 20 - Return null in this case
-            if (index < 0 || index > 20) {
+            if (index < 0 || index >= selectableFruits.length) {
                 return null;
             }
-            return index;
-        }, { index: 4 }
+            return selectableFruits[index];
+        }, config, onchanged
     );
 }
 
