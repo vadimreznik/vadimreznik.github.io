@@ -16,18 +16,18 @@ input{
   outline: none;
 }
 
-/* .container {
+.container {
   width: 100%;
   min-height: 100vh;
   overflow: hidden;
   position: relative;
-} */
+}
 
 /* Center the content in the browser window */
-/* .container {
+.container {
   margin: auto;
   text-align: center;
-} */
+}
 
 .view {
   width: 100%;
@@ -75,12 +75,8 @@ input{
 
 /* common view content */
 .view .view-content{
-  display: flex;
   width: 100%;
-  padding: 58px 10px 10px;
-  height: calc(100vh - 58px);
-  align-items: center;
-  box-sizing: border-box;
+
   overflow: hidden;
 }
 
